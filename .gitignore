@@ -1,0 +1,25 @@
+# Dependencies
+node_modules
+
+# Build Artifacts
+/out
+/dist
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment Config
+.env
+
+# Editor directories and files
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS meta-data
+.DS_Store
