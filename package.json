@@ -14,8 +14,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "extension.generateCommitMessage",
-        "title": "GitoCommito: Generate Commit Message"
+        "command": "extension.generateCommitMessageStaged",
+        "title": "GitoCommito: Generate Commit Message Staged"
+      },
+      {
+        "command": "extension.generateCommitMessageUnstaged",
+        "title": "GitoCommito: Generate Commit Message Unstaged"
       }
     ]
   },
