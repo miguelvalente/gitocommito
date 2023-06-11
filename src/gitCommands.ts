@@ -1,16 +1,17 @@
 import { exec } from 'child_process';
 import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
+import { LLMChain } from "langchain/chains";
 import * as fs from 'fs';
 import * as vscode from 'vscode';
+import * as path from 'path';
 
-const configPath = `${__dirname}/config.json`;
+const configPath = path.join(__dirname, '../config.json');
 const configContent = fs.readFileSync(configPath, 'utf8');
 const config = JSON.parse(configContent);
 const apiKey = config.openAIApiKey || '';
 
-const openai = new OpenAI({ openAIApiKey: apiKey, temperature: 0.9 });
-
+const model = new OpenAI({ openAIApiKey: apiKey, temperature: 0.9 });
 const template = `Generate a commit message that follows commits best practices.
                   Use Conventional Commits convention.
                   Be concise.
@@ -24,6 +25,8 @@ const prompt = new PromptTemplate({
   template: template,
   inputVariables: ["staged_changes"],
 });
+
+const chain = new LLMChain({ llm: model, prompt: prompt });
 
 // const apiKey = vscode.workspace.getConfiguration('GitoCommito').get<string>('OpenAIApiKey') || '';
 // if (!apiKey) {
@@ -118,7 +121,6 @@ export async function getFilteredStagedChanges(filterTypes: string = 'ACDMRTUB')
 
     let stagedChangesDiff: { [key: string]: string } = {};
 
-    generateCommitMessageStaged(stagedChangesDiff);
 
     for (let diffPromise of diffPromises) {
         let [filterType, diffOutput] = await diffPromise;
@@ -126,17 +128,22 @@ export async function getFilteredStagedChanges(filterTypes: string = 'ACDMRTUB')
             stagedChangesDiff[filterType] = diffOutput;
         }
     }
+
+    console.log(stagedChangesDiff)
+    generateCommitMessageStaged(stagedChangesDiff);
     return stagedChangesDiff;
 }
 
 
 export async function generateCommitMessageStaged(stagedChanges: { [key: string]: string }): Promise<string> {
-    try {
-        const commitMessage = await prompt.format({ product: "colorful socks" });
-        console.log(commitMessage);
-        return commitMessage;
-    } catch (error) {
-        console.error(`Error generating commit message: ${error}`);
-        throw error;
-    }
+  try {
+    console.log(stagedChanges);
+    const commitMessage = await chain.call({ staged_changes: stagedChanges["M"] });
+    console.log(commitMessage);
+
+    return commitMessage["text"];
+  } catch (error) {
+    console.error(`Error generating commit message: ${error}`);
+    throw error;
+  }
 }
