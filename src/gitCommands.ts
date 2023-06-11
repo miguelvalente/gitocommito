@@ -1,5 +1,38 @@
 import { exec } from 'child_process';
+import { OpenAI } from "langchain/llms/openai";
+import { PromptTemplate } from "langchain/prompts";
 import * as fs from 'fs';
+import * as vscode from 'vscode';
+
+const configPath = `${__dirname}/config.json`;
+const configContent = fs.readFileSync(configPath, 'utf8');
+const config = JSON.parse(configContent);
+const apiKey = config.openAIApiKey || '';
+
+const openai = new OpenAI({ openAIApiKey: apiKey, temperature: 0.9 });
+
+const template = `Generate a commit message that follows commits best practices.
+                  Use Conventional Commits convention.
+                  Be concise.
+                  Use Emojis appropiratly.
+                  Do not over use emojis.
+
+                  Staged Changes:
+                  {staged_changes}`;
+
+const prompt = new PromptTemplate({
+  template: template,
+  inputVariables: ["staged_changes"],
+});
+
+// const apiKey = vscode.workspace.getConfiguration('GitoCommito').get<string>('OpenAIApiKey') || '';
+// if (!apiKey) {
+//     vscode.window.showInformationMessage('Please set the API key for My Extension.', 'Open Settings').then(selection => {
+//         if (selection === 'Open Settings') {
+//             vscode.commands.executeCommand('workbench.action.openSettings', '@ext:<your-extension-id>');
+//         }
+//     });
+// }
 
 
 export async function getUnstagedChangesDiff(filterType: string, directory: string): Promise<[string, string]> {
@@ -85,6 +118,8 @@ export async function getFilteredStagedChanges(filterTypes: string = 'ACDMRTUB')
 
     let stagedChangesDiff: { [key: string]: string } = {};
 
+    generateCommitMessageStaged(stagedChangesDiff);
+
     for (let diffPromise of diffPromises) {
         let [filterType, diffOutput] = await diffPromise;
         if (diffOutput) {
@@ -92,4 +127,16 @@ export async function getFilteredStagedChanges(filterTypes: string = 'ACDMRTUB')
         }
     }
     return stagedChangesDiff;
+}
+
+
+export async function generateCommitMessageStaged(stagedChanges: { [key: string]: string }): Promise<string> {
+    try {
+        const commitMessage = await prompt.format({ product: "colorful socks" });
+        console.log(commitMessage);
+        return commitMessage;
+    } catch (error) {
+        console.error(`Error generating commit message: ${error}`);
+        throw error;
+    }
 }
