@@ -23,3 +23,5 @@ yarn-error.log*
 
 # OS meta-data
 .DS_Store
+
+config.json
