@@ -6,6 +6,10 @@
   "engines": {
     "vscode": "^1.78.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/miguelvalente/gitocommito.git"
+  },
   "categories": [
     "Other"
   ],
