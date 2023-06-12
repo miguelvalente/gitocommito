@@ -25,4 +25,5 @@ yarn-error.log*
 .DS_Store
 
 config.json
-template.ts
+template.txt
+
