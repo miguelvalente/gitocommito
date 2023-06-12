@@ -1,4 +1,9 @@
-# gitocommito README
+<p align="center">
+  <a href="https://github.com/miguelvalente/gitocommmito"><img src="https://github.com/miguelvalente/gitocommito/blob/master/assets/banner.png?raw=true" alt="GitoCommito"></a>
+</p>
+<p align="center">
+    <em>Let GitoCommito commit for you</em>
+</p>
 
 ## Features
 
