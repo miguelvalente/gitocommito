@@ -1,6 +1,7 @@
 {
   "name": "gitocommito",
-  "displayName": "gitocommito",
+  "displayName": "GitoCommito",
+  "publisher": "mvalente",
   "description": "",
   "version": "0.0.1",
   "engines": {
