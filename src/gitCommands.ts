@@ -12,14 +12,7 @@ const config = JSON.parse(configContent);
 const apiKey = config.openAIApiKey || '';
 
 const model = new OpenAI({ openAIApiKey: apiKey, temperature: 0.9 });
-const template = `Generate a commit message that follows commits best practices.
-                  Use Conventional Commits convention.
-                  Be concise.
-                  Use Emojis appropiratly.
-                  Do not over use emojis.
-
-                  Staged Changes:
-                  {staged_changes}`;
+const template = config.template || '';
 
 const prompt = new PromptTemplate({
   template: template,
@@ -75,7 +68,7 @@ export async function getFilteredUnstagedChanges(filterTypes: string = 'ACDMRTUB
 
 export function runGitCommand(cmd: string[], directory: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        console.log(`Running command: ${cmd.join(' ')} in directory: ${directory}`);
+        // console.log(`Running command: ${cmd.join(' ')} in directory: ${directory}`);
         exec(
             cmd.join(' '),
             { cwd: directory },
@@ -129,7 +122,6 @@ export async function getFilteredStagedChanges(filterTypes: string = 'ACDMRTUB')
         }
     }
 
-    console.log(stagedChangesDiff)
     generateCommitMessageStaged(stagedChangesDiff);
     return stagedChangesDiff;
 }
@@ -137,9 +129,11 @@ export async function getFilteredStagedChanges(filterTypes: string = 'ACDMRTUB')
 
 export async function generateCommitMessageStaged(stagedChanges: { [key: string]: string }): Promise<string> {
   try {
-    console.log(stagedChanges);
-    const commitMessage = await chain.call({ staged_changes: stagedChanges["M"] });
-    console.log(commitMessage);
+    const allDifs = Object.values(stagedChanges).join("-------\n")
+    const commitMessage = await chain.call({ staged_changes: allDifs });
+    console.log(allDifs)
+    console.log("\n-----------\n")
+    console.log(commitMessage["text"]);
 
     return commitMessage["text"];
   } catch (error) {
