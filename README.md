@@ -19,7 +19,7 @@ For example:
 
 This extension contributes the following settings:
 
-* `GitoCommito.OpenAIApiKey`: Set's your OpenAI API key. 
+- `GitoCommito.OpenAIApiKey`: Set's your OpenAI API key.
 
 ## Known Issues
 
@@ -29,4 +29,4 @@ Users appreciate release notes as you update your extension.
 
 ### 1.0.0
 
-Initial release of GitoCommito. Raw. 
+Initial release of GitoCommito. Raw.
