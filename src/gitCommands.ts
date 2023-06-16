@@ -1,188 +1,118 @@
+import * as fs from "fs";
+import * as path from "path";
+import * as vscode from "vscode";
 import { exec } from "child_process";
 import { OpenAI } from "langchain/llms/openai";
 import { PromptTemplate } from "langchain/prompts";
 import { LLMChain } from "langchain/chains";
-import * as fs from "fs";
-import * as vscode from "vscode";
-import * as path from "path";
+import { Configuration, OpenAIApi } from "openai";
 
-const configPath = path.join(__dirname, "../config.json");
-const configContent = fs.readFileSync(configPath, "utf8");
-const config = JSON.parse(configContent);
-const apiKey = config.openAIApiKey || "";
-
-const model = new OpenAI({ openAIApiKey: apiKey, temperature: 0.9 });
-const template = config.template || "";
-
-const prompt = new PromptTemplate({
-  template: template,
-  inputVariables: ["staged_changes"],
-});
-
-const chain = new LLMChain({ llm: model, prompt: prompt });
-
-// OPENAI
-
-const { Configuration, OpenAIApi } = require("openai");
-const configuration = new Configuration({
-  apiKey: apiKey,
-});
-const openai = new OpenAIApi(configuration);
-
-// const apiKey = vscode.workspace.getConfiguration('GitoCommito').get<string>('OpenAIApiKey') || '';
-// if (!apiKey) {
-//     vscode.window.showInformationMessage('Please set the API key for My Extension.', 'Open Settings').then(selection => {
-//         if (selection === 'Open Settings') {
-//             vscode.commands.executeCommand('workbench.action.openSettings', '@ext:<your-extension-id>');
-//         }
-//     });
-// }
-
-export async function getUnstagedChangesDiff(
-  filterType: string,
-  directory: string
-): Promise<[string, string]> {
-  let cmd = ["git", "diff", "--diff-filter=" + filterType];
-  let diffOutput = await runGitCommand(cmd, directory);
-
-  if (filterType === "U") {
-    let cmdUntracked = ["git", "ls-files", "--others", "--exclude-standard"];
-    let untrackedFiles = (await runGitCommand(cmdUntracked, directory))
-      .split("\n")
-      .filter((file) => file.trim() !== ""); // filter out empty strings
-    for (let file of untrackedFiles) {
-      const fullPath = `${directory}/${file}`; // Provide the full path
-      diffOutput += `\nUntracked file: ${file}\n`;
-      try {
-        diffOutput += fs
-          .readFileSync(fullPath, "utf8")
-          .split("\n")
-          .map((line) => `+${line}`)
-          .join("\n");
-      } catch (err) {
-        console.error(`Error reading file ${fullPath}: ${err}`);
-      }
-    }
-  }
-  return [filterType, diffOutput];
+export function runGitCommand(cmd: string[], directory: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        exec(cmd.join(" "), { cwd: directory }, (error: any, stdout: string, stderr: string) => {
+            if (error) {
+                console.error(`Error executing command: ${stderr}`);
+                reject(stderr);
+            } else {
+                resolve(stdout);
+            }
+        });
+    });
 }
 
-export async function getFilteredUnstagedChanges(
-  filterTypes: string = "ACDMRTUB"
-) {
-  let diffPromises = filterTypes
-    .split("")
-    .map((filterType) =>
-      getUnstagedChangesDiff(filterType, "/home/mvalente/deving/gitocommito")
-    );
-
-  let unstagedChangesDiff: { [key: string]: string } = {};
-
-  for (let diffPromise of diffPromises) {
-    let [filterType, diffOutput] = await diffPromise;
-    if (diffOutput) {
-      unstagedChangesDiff[filterType] = diffOutput;
-    }
-  }
-  return unstagedChangesDiff;
-}
-
-export function runGitCommand(
-  cmd: string[],
-  directory: string
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    // console.log(`Running command: ${cmd.join(' ')} in directory: ${directory}`);
-    exec(
-      cmd.join(" "),
-      { cwd: directory },
-      (error: any, stdout: string, stderr: string) => {
-        if (error) {
-          console.error(`Error executing command: ${stderr}`);
-          reject(stderr);
-        } else {
-          resolve(stdout);
-        }
-      }
-    );
-  });
-}
 async function isGitRepo(directory: string): Promise<boolean> {
-  try {
-    // Attempt to run a git status command; will fail if not in a git repo.
-    await runGitCommand(["git", "status"], directory);
-    return true; // If it doesn't throw an error, it's a git repo.
-  } catch (error) {
-    return false; // If it throws an error, it's not a git repo.
-  }
+    try {
+        await runGitCommand(["git", "status"], directory);
+        return true;
+    } catch (error) {
+        return false;
+    }
 }
 
 export async function getStagedChangesDiff(
-  filterType: string,
-  directory: string
+    filterType: string,
+    directory: string
 ): Promise<[string, string]> {
-  try {
-    if (!(await isGitRepo(directory))) {
-      throw new Error("Not inside a Git repository");
-    }
+    try {
+        if (!(await isGitRepo(directory))) {
+            throw new Error("Not inside a Git repository");
+        }
 
-    let cmd = ["git", "diff", "--cached", "--diff-filter=" + filterType];
-    let diffOutput = await runGitCommand(cmd, directory);
-    return [filterType, diffOutput];
-  } catch (error) {
-    console.error(`Error in getStagedChangesDiff: ${error}`);
-    throw error;
-  }
+        let cmd = ["git", "diff", "--cached", "--diff-filter=" + filterType];
+        let diffOutput = await runGitCommand(cmd, directory);
+        return [filterType, diffOutput];
+    } catch (error) {
+        console.error(`Error in getStagedChangesDiff: ${error}`);
+        throw error;
+    }
 }
 
-export async function getFilteredStagedChanges(
-  filterTypes: string = "ACDMRTUB"
-) {
-  let diffPromises = filterTypes
-    .split("")
-    .map((filterType) =>
-      getStagedChangesDiff(filterType, "/home/mvalente/deving/gitocommito")
-    );
+export async function getFilteredStagedChanges(filterTypes: string = "ACDMRTUB") {
+    let diffPromises = filterTypes
+        .split("")
+        .map((filterType) =>
+            getStagedChangesDiff(filterType, "/home/mvalente/deving/gitocommito")
+        );
 
-  let stagedChangesDiff: { [key: string]: string } = {};
+    let stagedChangesDiff: { [key: string]: string } = {};
 
-  for (let diffPromise of diffPromises) {
-    let [filterType, diffOutput] = await diffPromise;
-    if (diffOutput) {
-      stagedChangesDiff[filterType] = diffOutput;
+    for (let diffPromise of diffPromises) {
+        let [filterType, diffOutput] = await diffPromise;
+        if (diffOutput) {
+            stagedChangesDiff[filterType] = diffOutput;
+        }
     }
-  }
 
-  generateCommitMessageStaged(stagedChangesDiff);
-  return stagedChangesDiff;
-}
-
-export async function generateCommitMessageStaged(stagedChanges: {
-  [key: string]: string;
-}): Promise<string> {
-  try {
-    const allDifs = Object.values(stagedChanges).join("-------\n");
-    const commitMessage = await chain.call({ staged_changes: allDifs });
-    console.log(allDifs);
-    console.log("\n-----------\n");
-    console.log(commitMessage["text"]);
-
-    const chatCompletion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `You are a git user.
-                                      You have staged changes.
-                                      You want to commit them.
-                                      You want to write a commit message.`,
-        },
-      ],
+    const configPath = path.join(__dirname, "../config.json");
+    const configContent = fs.readFileSync(configPath, "utf8");
+    const config = JSON.parse(configContent);
+    const apiKey = config.openAIApiKey || "";
+    const model = new OpenAI({ openAIApiKey: apiKey, temperature: 0.9 });
+    const template = config.template || "";
+    const prompt = new PromptTemplate({
+        template: template,
+        inputVariables: ["staged_changes"],
     });
+    const chain = new LLMChain({ llm: model, prompt: prompt });
 
-    return commitMessage["text"];
-  } catch (error) {
-    console.error(`Error generating commit message: ${error}`);
-    throw error;
-  }
+    const configuration = new Configuration({
+        apiKey: apiKey,
+    });
+    const openai = new OpenAIApi(configuration);
+
+    generateCommitMessageStaged(stagedChangesDiff, chain, openai);
+    return stagedChangesDiff;
+
+}
+
+export async function generateCommitMessageStaged(
+    stagedChanges: { [key: string]: string },
+    chain: any,
+    openai: any
+): Promise<string> {
+    try {
+        const allDifs = Object.values(stagedChanges).join("-------\n");
+        const commitMessage = await chain.call({ staged_changes: allDifs });
+        console.log(allDifs);
+        console.log("\n-----------\n");
+        console.log(commitMessage["text"]);
+
+        const chatCompletion = await openai.createChatCompletion({
+            model: "gpt-3.5-turbo",
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a git user.
+                                                You have staged changes.
+                                                You want to commit them.
+                                                You want to write a commit message.`,
+                },
+            ],
+        });
+
+        return commitMessage["text"];
+    } catch (error) {
+        console.error(`Error generating commit message: ${error}`);
+        throw error;
+    }
 }

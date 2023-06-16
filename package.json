@@ -29,12 +29,8 @@
     },
     "commands": [
       {
-        "command": "extension.generateCommitMessageStaged",
-        "title": "GitoCommito: Generate Commit Message Staged"
-      },
-      {
-        "command": "extension.generateCommitMessageUnstaged",
-        "title": "GitoCommito: Generate Commit Message Unstaged"
+        "command": "extension.generateCommitMessage",
+        "title": "GitoCommito: Generate Commit Message"
       }
     ]
   },
