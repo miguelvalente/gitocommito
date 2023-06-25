@@ -177,35 +177,6 @@ export async function generateCommitMessageStaged(
         },
       ],
     });
-    // const chatCompletion = await openai.createChatCompletion({
-    //     model: "gpt-3.5-turbo-0613",
-    //     messages: [
-    //         {
-    //             role: "user",
-    //             content: "What is the weather like in Boston?"
-    //         }
-    //     ],
-    //     functions: [
-    //         {
-    //           name: "get_current_weather",
-    //           description: "Get the current weather in a given location",
-    //           parameters: {
-    //             type: "object",
-    //             properties: {
-    //               location: {
-    //                 type: "string",
-    //                 description: "The city and state, e.g. San Francisco, CA"
-    //               },
-    //               unit: {
-    //                 type: "string",
-    //                 enum: ["celsius", "fahrenheit"]
-    //               }
-    //             },
-    //             required: ["location"]
-    //           }
-    //         }
-    //       ]
-    // });
 
     console.log(chatCompletion.data.choices[0].message.finish_reason);
 
