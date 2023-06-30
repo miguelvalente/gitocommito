@@ -31,6 +31,10 @@
       {
         "command": "extension.generateCommitMessage",
         "title": "GitoCommito: Generate Commit Message"
+      },
+      {
+        "command": "extension.setOpenAIKey",
+        "title": "GitoCommito: Set OpenAI Key"
       }
     ]
   },
