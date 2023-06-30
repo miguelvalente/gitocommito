@@ -1,6 +1,8 @@
 // getStagedChanges.ts
 // getStagedChanges.ts
 import { runGitCommand } from './runGitCommands';
+import * as vscode from 'vscode';
+
 
 async function isGitRepo(directory: string): Promise<boolean> {
   try {
@@ -10,6 +12,11 @@ async function isGitRepo(directory: string): Promise<boolean> {
     return false;
   }
 }
+
+function sanitizeMessage(message: string): string {
+  return message.replace(/"/g, '\\"');
+}
+
 
 async function getStagedChangesDiff(
   filterType: string,
@@ -51,4 +58,23 @@ export async function getFilteredStagedChanges(
   }
 
   return stagedChangesDiff;
+}
+
+export async function gitCommit(directory: string, message: string): Promise<void> {
+  try {
+    if (!(await isGitRepo(directory))) {
+      throw new Error("Not inside a Git repository");
+    }
+
+    // Sanitize the commit message
+    const sanitizedMessage = sanitizeMessage(message);
+
+    const commitCommand = ["git", "commit", "-m", `"${sanitizedMessage}"`];
+
+    await runGitCommand(commitCommand, directory);
+    vscode.window.showInformationMessage("Commit created successfully!");
+  } catch (error) {
+    console.error(`Error in gitCommit: ${error}`);
+    vscode.window.showErrorMessage(`Error creating commit: ${error}`);
+  }
 }

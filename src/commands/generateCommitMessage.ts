@@ -15,7 +15,7 @@ export async function generateCommitMessage(
           role: "system",
           content: `You are a git user. You have staged changes. You want to commit them. You want to write a commit message.`,
         },
-        { role: "user", content: allDifs },
+        { role: "user", content: "Hello TEST PRINT THIS" },
       ],
       functions: [
         {
@@ -84,6 +84,7 @@ export async function generateCommitMessage(
         },
       ],
     });
+
 
     if (
         chatCompletion.data.choices && 

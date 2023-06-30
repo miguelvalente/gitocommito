@@ -4,6 +4,7 @@
   "publisher": "mvalente",
   "description": "",
   "version": "0.0.1",
+  "icon": "images/gitocommito_LOGO.png",
   "engines": {
     "vscode": "^1.78.0"
   },

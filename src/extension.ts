@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { generateCommitMessage } from "./commands/generateCommitMessage";
-import { getFilteredStagedChanges } from './git/getStagedChanges';
+import { getFilteredStagedChanges, gitCommit } from './git/gitCommands';
 import { configureOpenAI } from './openai/configureOpenAI'; 
 import { setOpenAIKey } from "./commands/setOpenAIKey";
 
@@ -17,13 +17,18 @@ export function activate(context: vscode.ExtensionContext) {
 
       // Assuming you want to run the command on the first workspace folder
       const directory = workspaceFolders[0].uri.fsPath;
+      console.log(directory);
 
       // get staged changes
       const stagedChanges = await getFilteredStagedChanges(directory);
+
+      console.log(stagedChanges);
       
       // Generate commit message
       const commitMessage = await generateCommitMessage(stagedChanges, openai);
+      console.log(commitMessage);
       // Then do something with commitMessage
+      await gitCommit(directory, commitMessage);
     }
   );
 
