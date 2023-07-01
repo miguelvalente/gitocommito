@@ -3,11 +3,14 @@ import { generateCommitMessage } from "./commands/generateCommitMessage";
 import { getFilteredStagedChanges, gitCommit } from './git/gitCommands';
 import { configureOpenAI } from './openai/configureOpenAI'; 
 import { setOpenAIKey } from "./commands/setOpenAIKey";
+import { insertCommitTextBox } from './git/gitAPI';
 
 export function activate(context: vscode.ExtensionContext) {
   let commandGenerateCommit = vscode.commands.registerCommand(
     "extension.generateCommitMessage",
     async () => {
+
+
       const workspaceFolders = vscode.workspace.workspaceFolders;
       if (!workspaceFolders || workspaceFolders.length === 0) {
         vscode.window.showErrorMessage("No workspace folder is open");
@@ -27,8 +30,9 @@ export function activate(context: vscode.ExtensionContext) {
       // Generate commit message
       const commitMessage = await generateCommitMessage(stagedChanges, openai);
       console.log(commitMessage);
-      // Then do something with commitMessage
-      await gitCommit(directory, commitMessage);
+
+      // Then place the commit message in the commit textbox
+      await insertCommitTextBox(commitMessage);
     }
   );
 
