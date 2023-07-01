@@ -5,7 +5,7 @@ import { configureOpenAI } from './openai/configureOpenAI';
 import { setOpenAIKey } from "./commands/setOpenAIKey";
 
 export function activate(context: vscode.ExtensionContext) {
-  let generate_commit = vscode.commands.registerCommand(
+  let commandGenerateCommit = vscode.commands.registerCommand(
     "extension.generateCommitMessage",
     async () => {
       const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -32,12 +32,12 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  let set_openapi_key = vscode.commands.registerCommand(
+  let commandSetOpenAIAPIKey = vscode.commands.registerCommand(
       "extension.setOpenAIKey",
       setOpenAIKey
     );
 
-    context.subscriptions.push(generate_commit, set_openapi_key);
+    context.subscriptions.push(commandGenerateCommit, commandSetOpenAIAPIKey);
 }
 
 export function deactivate() {}
