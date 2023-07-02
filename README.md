@@ -5,6 +5,8 @@
     <em>Let GitoCommito commit for you</em>
 </p>
 
+![GitoCommito](/assets/GitoCommito.gif?raw=true "GitoCommito")
+
 ## Features
 
 -  Automatic Commit Generation: Generate commits based on your staged changes.
