@@ -19,7 +19,7 @@ You can set the OpenAI key by calling GitoCommito: Set OpenAI Key
 - Feel free to open Issues.
 
 
-### 0.0.2
+### 0.0.3
 ## Features
 
 -  Automatic Commit Generation: Generate commits based on your staged changes.
