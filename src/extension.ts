@@ -22,6 +22,11 @@ export function activate(context: vscode.ExtensionContext) {
 
       // get staged changes
       const stagedChanges = await getFilteredStagedChanges(directory);
+      const allDifs = Object.values(stagedChanges).join("-------\n");
+      if (!allDifs || allDifs.length === 0) {
+      throw new Error('No staged changes were found. Please add your changes before annoying Gito.');
+      }
+
 
       console.log(stagedChanges);
 
