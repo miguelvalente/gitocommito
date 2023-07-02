@@ -3,8 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { Uri, Event, Disposable, ProviderResult } from 'vscode';
-export { ProviderResult } from 'vscode';
+import { Uri, Event, Disposable, ProviderResult } from "vscode";
+export { ProviderResult } from "vscode";
 
 export interface Git {
   readonly path: string;
@@ -124,7 +124,7 @@ export interface LogOptions {
 }
 
 export interface CommitOptions {
-  all?: boolean | 'tracked';
+  all?: boolean | "tracked";
   amend?: boolean;
   signoff?: boolean;
   signCommit?: boolean;
@@ -151,10 +151,10 @@ export interface Repository {
 
   getObjectDetails(
     treeish: string,
-    path: string,
+    path: string
   ): Promise<{ mode: string; object: string; size: number }>;
   detectObjectType(
-    object: string,
+    object: string
   ): Promise<{ mimetype: string; encoding?: string }>;
   buffer(ref: string, path: string): Promise<Buffer>;
   show(ref: string, path: string): Promise<string>;
@@ -198,7 +198,7 @@ export interface Repository {
   push(
     remoteName?: string,
     branchName?: string,
-    setUpstream?: boolean,
+    setUpstream?: boolean
   ): Promise<void>;
 
   blame(path: string): Promise<string>;
@@ -230,7 +230,7 @@ export interface CredentialsProvider {
   getCredentials(host: Uri): ProviderResult<Credentials>;
 }
 
-export type APIState = 'uninitialized' | 'initialized';
+export type APIState = "uninitialized" | "initialized";
 
 export interface API {
   readonly state: APIState;
@@ -266,38 +266,38 @@ export interface GitExtension {
 }
 
 export const enum GitErrorCodes {
-  BadConfigFile = 'BadConfigFile',
-  AuthenticationFailed = 'AuthenticationFailed',
-  NoUserNameConfigured = 'NoUserNameConfigured',
-  NoUserEmailConfigured = 'NoUserEmailConfigured',
-  NoRemoteRepositorySpecified = 'NoRemoteRepositorySpecified',
-  NotAGitRepository = 'NotAGitRepository',
-  NotAtRepositoryRoot = 'NotAtRepositoryRoot',
-  Conflict = 'Conflict',
-  StashConflict = 'StashConflict',
-  UnmergedChanges = 'UnmergedChanges',
-  PushRejected = 'PushRejected',
-  RemoteConnectionError = 'RemoteConnectionError',
-  DirtyWorkTree = 'DirtyWorkTree',
-  CantOpenResource = 'CantOpenResource',
-  GitNotFound = 'GitNotFound',
-  CantCreatePipe = 'CantCreatePipe',
-  CantAccessRemote = 'CantAccessRemote',
-  RepositoryNotFound = 'RepositoryNotFound',
-  RepositoryIsLocked = 'RepositoryIsLocked',
-  BranchNotFullyMerged = 'BranchNotFullyMerged',
-  NoRemoteReference = 'NoRemoteReference',
-  InvalidBranchName = 'InvalidBranchName',
-  BranchAlreadyExists = 'BranchAlreadyExists',
-  NoLocalChanges = 'NoLocalChanges',
-  NoStashFound = 'NoStashFound',
-  LocalChangesOverwritten = 'LocalChangesOverwritten',
-  NoUpstreamBranch = 'NoUpstreamBranch',
-  IsInSubmodule = 'IsInSubmodule',
-  WrongCase = 'WrongCase',
-  CantLockRef = 'CantLockRef',
-  CantRebaseMultipleBranches = 'CantRebaseMultipleBranches',
-  PatchDoesNotApply = 'PatchDoesNotApply',
-  NoPathFound = 'NoPathFound',
-  UnknownPath = 'UnknownPath',
+  BadConfigFile = "BadConfigFile",
+  AuthenticationFailed = "AuthenticationFailed",
+  NoUserNameConfigured = "NoUserNameConfigured",
+  NoUserEmailConfigured = "NoUserEmailConfigured",
+  NoRemoteRepositorySpecified = "NoRemoteRepositorySpecified",
+  NotAGitRepository = "NotAGitRepository",
+  NotAtRepositoryRoot = "NotAtRepositoryRoot",
+  Conflict = "Conflict",
+  StashConflict = "StashConflict",
+  UnmergedChanges = "UnmergedChanges",
+  PushRejected = "PushRejected",
+  RemoteConnectionError = "RemoteConnectionError",
+  DirtyWorkTree = "DirtyWorkTree",
+  CantOpenResource = "CantOpenResource",
+  GitNotFound = "GitNotFound",
+  CantCreatePipe = "CantCreatePipe",
+  CantAccessRemote = "CantAccessRemote",
+  RepositoryNotFound = "RepositoryNotFound",
+  RepositoryIsLocked = "RepositoryIsLocked",
+  BranchNotFullyMerged = "BranchNotFullyMerged",
+  NoRemoteReference = "NoRemoteReference",
+  InvalidBranchName = "InvalidBranchName",
+  BranchAlreadyExists = "BranchAlreadyExists",
+  NoLocalChanges = "NoLocalChanges",
+  NoStashFound = "NoStashFound",
+  LocalChangesOverwritten = "LocalChangesOverwritten",
+  NoUpstreamBranch = "NoUpstreamBranch",
+  IsInSubmodule = "IsInSubmodule",
+  WrongCase = "WrongCase",
+  CantLockRef = "CantLockRef",
+  CantRebaseMultipleBranches = "CantRebaseMultipleBranches",
+  PatchDoesNotApply = "PatchDoesNotApply",
+  NoPathFound = "NoPathFound",
+  UnknownPath = "UnknownPath",
 }

@@ -1,9 +1,9 @@
-import * as vscode from 'vscode';
-import * as VSCodeGit from '../vendors/git';
-import * as path from 'path';
+import * as vscode from "vscode";
+import * as VSCodeGit from "../vendors/git";
+import * as path from "path";
 
 function getGitAPI(): VSCodeGit.API {
-  const vscodeGit = vscode.extensions.getExtension('vscode.git');
+  const vscodeGit = vscode.extensions.getExtension("vscode.git");
   if (!vscodeGit?.exports.getAPI(1)) {
     vscode.window.showErrorMessage("vscode.git not found");
   }
@@ -32,13 +32,13 @@ async function getRepository({
 
   const repositories = git.repositories
     .map((repo) => repo.rootUri.fsPath)
-    .join(', ');
-    console.log("repositories: ", repositories);
+    .join(", ");
+  console.log("repositories: ", repositories);
 
   const _workspaceFolders = workspaceFolders
     ?.map((folder) => folder.uri.fsPath)
-    .join(', ');
-    console.log("workspaceFolders: ", workspaceFolders);
+    .join(", ");
+  console.log("workspaceFolders: ", workspaceFolders);
 
   if (_arg) {
     const repo = git.repositories.find(function (r) {
@@ -46,7 +46,7 @@ async function getRepository({
     });
     if (repo) return repo;
     else {
-        vscode.window.showErrorMessage("repo not found in path " + _arg);
+      vscode.window.showErrorMessage("repo not found in path " + _arg);
     }
   }
 
@@ -64,11 +64,10 @@ async function getRepository({
       index,
       label: folder?.name || path.basename(repo.rootUri.fsPath),
       description:
-        (repo.state.HEAD?.name || repo.state.HEAD?.commit?.slice(0, 8) || '') +
-        (hasChanges(repo) ? '*' : ''),
+        (repo.state.HEAD?.name || repo.state.HEAD?.commit?.slice(0, 8) || "") +
+        (hasChanges(repo) ? "*" : ""),
     };
   });
-
 
   console.log("repositories: ", git.repositories);
   console.log("items: ", items);
@@ -76,20 +75,21 @@ async function getRepository({
   return git.repositories[0];
 }
 
+export async function insertCommitTextBox(
+  commitMessage: string,
+  repoUri?: VSCodeGit.Repository | vscode.Uri
+) {
+  const git = getGitAPI();
 
-export async function insertCommitTextBox(commitMessage: string, repoUri?: VSCodeGit.Repository | vscode.Uri){
-    const git = getGitAPI();
-
-    let _repoUri = repoUri;
-    if (!(repoUri instanceof vscode.Uri) && (repoUri !== undefined)) {
+  let _repoUri = repoUri;
+  if (!(repoUri instanceof vscode.Uri) && repoUri !== undefined) {
     _repoUri = repoUri.rootUri;
-    }
-    const repository = await getRepository({
-        arg: (<vscode.Uri | undefined>_repoUri),
-        git: git,
-        workspaceFolders: vscode.workspace.workspaceFolders,
-    });
+  }
+  const repository = await getRepository({
+    arg: <vscode.Uri | undefined>_repoUri,
+    git: git,
+    workspaceFolders: vscode.workspace.workspaceFolders,
+  });
 
-    repository.inputBox.value = commitMessage
-
+  repository.inputBox.value = commitMessage;
 }

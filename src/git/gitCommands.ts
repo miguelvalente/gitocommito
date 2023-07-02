@@ -1,8 +1,7 @@
 // getStagedChanges.ts
 // getStagedChanges.ts
-import { runGitCommand } from './runGitCommands';
-import * as vscode from 'vscode';
-
+import { runGitCommand } from "./runGitCommands";
+import * as vscode from "vscode";
 
 async function isGitRepo(directory: string): Promise<boolean> {
   try {
@@ -16,7 +15,6 @@ async function isGitRepo(directory: string): Promise<boolean> {
 function sanitizeMessage(message: string): string {
   return message.replace(/"/g, '\\"');
 }
-
 
 async function getStagedChangesDiff(
   filterType: string,
@@ -39,14 +37,11 @@ async function getStagedChangesDiff(
 export async function getFilteredStagedChanges(
   directory: string
 ): Promise<{ [key: string]: string }> {
-
   const filterTypes: string = "ACDMRTUB";
 
   let diffPromises = filterTypes
     .split("")
-    .map((filterType) =>
-      getStagedChangesDiff(filterType, directory)
-    );
+    .map((filterType) => getStagedChangesDiff(filterType, directory));
 
   let stagedChangesDiff: { [key: string]: string } = {};
 
@@ -60,7 +55,10 @@ export async function getFilteredStagedChanges(
   return stagedChangesDiff;
 }
 
-export async function gitCommit(directory: string, message: string): Promise<void> {
+export async function gitCommit(
+  directory: string,
+  message: string
+): Promise<void> {
   try {
     if (!(await isGitRepo(directory))) {
       throw new Error("Not inside a Git repository");

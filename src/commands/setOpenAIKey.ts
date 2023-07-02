@@ -6,10 +6,15 @@ export async function setOpenAIKey() {
     prompt: "Enter your OpenAI API Key",
   });
   if (apiKey) {
-    vscode.workspace.getConfiguration().update('GitoCommito.OpenAIApiKey', apiKey, vscode.ConfigurationTarget.Global);
+    vscode.workspace
+      .getConfiguration()
+      .update(
+        "GitoCommito.OpenAIApiKey",
+        apiKey,
+        vscode.ConfigurationTarget.Global
+      );
     vscode.window.showInformationMessage("OpenAI Key updated successfully!");
-  } 
- else {
+  } else {
     vscode.window.showErrorMessage("You did not enter a key.");
   }
 }

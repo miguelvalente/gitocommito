@@ -1,7 +1,10 @@
 // runGitCommand.ts
-import { exec } from 'child_process'; // you need to import exec from the correct package
+import { exec } from "child_process"; // you need to import exec from the correct package
 
-export function runGitCommand(cmd: string[], directory: string): Promise<string> {
+export function runGitCommand(
+  cmd: string[],
+  directory: string
+): Promise<string> {
   return new Promise((resolve, reject) => {
     exec(
       cmd.join(" "),

@@ -1,16 +1,14 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 import { generateCommitMessage } from "./commands/generateCommitMessage";
-import { getFilteredStagedChanges, gitCommit } from './git/gitCommands';
-import { configureOpenAI } from './openai/configureOpenAI'; 
+import { getFilteredStagedChanges, gitCommit } from "./git/gitCommands";
+import { configureOpenAI } from "./openai/configureOpenAI";
 import { setOpenAIKey } from "./commands/setOpenAIKey";
-import { insertCommitTextBox } from './git/gitAPI';
+import { insertCommitTextBox } from "./git/gitAPI";
 
 export function activate(context: vscode.ExtensionContext) {
   let commandGenerateCommit = vscode.commands.registerCommand(
     "extension.generateCommitMessage",
     async () => {
-
-
       const workspaceFolders = vscode.workspace.workspaceFolders;
       if (!workspaceFolders || workspaceFolders.length === 0) {
         vscode.window.showErrorMessage("No workspace folder is open");
@@ -26,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
       const stagedChanges = await getFilteredStagedChanges(directory);
 
       console.log(stagedChanges);
-      
+
       // Generate commit message
       const commitMessage = await generateCommitMessage(stagedChanges, openai);
       console.log(commitMessage);
@@ -37,11 +35,11 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   let commandSetOpenAIAPIKey = vscode.commands.registerCommand(
-      "extension.setOpenAIKey",
-      setOpenAIKey
-    );
+    "extension.setOpenAIKey",
+    setOpenAIKey
+  );
 
-    context.subscriptions.push(commandGenerateCommit, commandSetOpenAIAPIKey);
+  context.subscriptions.push(commandGenerateCommit, commandSetOpenAIAPIKey);
 }
 
 export function deactivate() {}
