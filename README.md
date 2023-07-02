@@ -7,26 +7,42 @@
 
 ## Features
 
-Generate the commits for you acording to Conventional Commits standardization.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Generate the commits for you acording to Conventional Commits standards.
 
 ## Setting OpenAI API key
 
-For example:
-
-This extension contributes the following settings:
-
-- `GitoCommito.OpenAIApiKey`: Set's your OpenAI API key.
-
-## Known Issues
+You can set the OpenAI key by calling GitoCommito: Set OpenAI Key
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+- Needs user testing. 
+- Feel free to open Issues.
 
-### 1.0.0
 
-Initial release of GitoCommito. Raw.
+### 0.0.2
+## Features
+
+-  Automatic Commit Generation: Generate commits based on your staged changes.
+-  Compliance with Conventional Commits: Adhere to the Conventional Commits standards without memorizing the conventions.
+-  Integration with OpenAI: Leverages the power of OpenAI's language model to create meaningful commit messages.
+
+## Getting Started
+
+1.  Install the extension from the Visual Studio Code marketplace.
+2.  Set your OpenAI key by calling __`GitoCommito: Set OpenAI Key`__ in the VS Code command palette (__`Cmd/Ctrl + Shift + P__` to open the command palette).
+3.  Start generating commit messages by calling __`GitoCommito: Generate Commit Message__`.
+
+## Requirements
+
+- Visual Studio Code
+- An OpenAI API Key
+
+## Release Notes
+### Version 0.0.2
+
+- Initial Release
+- Needs user testing. Feedback is highly appreciated. Please feel free to open an issue if you find any.
+
+### Contributing
+
+We welcome contributions to GitoCommito! If you'd like to contribute, feel free to fork the repository and submit a pull request.

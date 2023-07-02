@@ -23,7 +23,7 @@
       "properties": {
         "GitoCommito.OpenAIApiKey": {
           "type": "string",
-          "default": "NOTTHEKEY",
+          "default": "",
           "description": "Open AI Key"
         }
       }
