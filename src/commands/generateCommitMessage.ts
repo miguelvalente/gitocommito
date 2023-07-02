@@ -54,27 +54,27 @@ export async function generateCommitMessage(
                 emoji: {
                   type: "string",
                   enum: [
-                    "🎨",
-                    "⚡",
-                    "🔥",
-                    "🐛",
-                    "✅",
-                    "🔒",
-                    "⬆️",
-                    "⬇️",
-                    "🗑️",
-                    "🛂",
-                    "🩹",
-                    "🧐",
-                    "⚰️",
-                    "🧪",
-                    "👔",
-                    "🩺",
-                    "🧱",
-                    "👨‍💻",
-                    "💸",
-                    "🧵",
-                    "🦺",
+                    ":art:",
+                    ":zap:",
+                    ":fire:",
+                    ":bug:",
+                    ":white_check_mark:",
+                    ":lock:",
+                    ":arrow_up:",
+                    ":arrow_down:",
+                    ":wastebasket:",
+                    ":passport_control:",
+                    ":adhesive_bandage:",
+                    ":monocle_face:",
+                    ":coffin:",
+                    ":test_tube:",
+                    ":necktie:",
+                    ":stethoscope:",
+                    ":bricks:",
+                    ":technologist:",
+                    ":money_with_wings:",
+                    ":thread:",
+                    ":safety_vest:",
                   ],
                   description:
                     "The picked emoji should be picked according to its Conventional Commit meaning",
@@ -105,7 +105,7 @@ export async function generateCommitMessage(
       const subject = parsedResponse.subject;
       const body = parsedResponse.body;
 
-      let commitMessage = `${changeType} ${emoji}: ${subject}`;
+      let commitMessage = `${changeType}: ${emoji} ${subject}`;
 
       // Check if body is defined and non-empty before appending it to commitMessage
       if (body && body.trim()) {
