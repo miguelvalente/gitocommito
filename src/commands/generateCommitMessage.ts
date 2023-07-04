@@ -27,10 +27,11 @@ export async function generateCommitMessage(
     } else {
       const chatCompletion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo-16k-0613",
+        temperature: 0.9,
         messages: [
           {
             role: "system",
-            content: `You are a git user. You have one or more staged changes. You want to commit them. You want to write a commit message that reflects all changes.`,
+            content: `You are a git user with have staged changes. You want to commit the changes. You need to write a commit message. Use the diff text to write a accurate commit message. The diff output contains the most relevant information. Information like filename is secondary. Focus on constrasting deletion versus addition of code lines.`,
           },
           { role: "user", content: allDifs },
         ],
@@ -102,21 +103,37 @@ export async function generateCommitMessage(
         ],
       });
 
-      const responseArguments =
-        chatCompletion?.data?.choices[0]?.message?.function_call?.arguments;
+      let commitMessage: string;
+      if (chatCompletion?.data?.choices[0]?.message?.function_call?.arguments) {
 
-      const parsedResponse = JSON.parse(responseArguments || "");
+        const responseArguments =
+          chatCompletion?.data?.choices[0]?.message?.function_call?.arguments;
+        const parsedResponse = JSON.parse(responseArguments || "");
 
-      const changeType = parsedResponse.changeType;
-      const emoji = parsedResponse.emoji;
-      const subject = parsedResponse.subject;
-      const body = parsedResponse.body;
+        const changeType = parsedResponse.changeType;
+        const emoji = parsedResponse.emoji;
+        const subject = parsedResponse.subject;
+        const body = parsedResponse.body;
 
-      let commitMessage = `${changeType}: ${emoji} ${subject}`;
+        commitMessage = `${changeType}: ${emoji} ${subject}`;
 
-      // Check if body is defined and non-empty before appending it to commitMessage
-      if (body && body.trim()) {
-        commitMessage += `\n\n${body}`;
+        // Check if body is defined and non-empty before appending it to commitMessage
+        if (body && body.trim()) {
+          commitMessage += `\n\n${body}`;
+        }
+      } else if (chatCompletion?.data?.choices[0]?.message?.content) {
+        commitMessage = chatCompletion.data.choices[0].message.content;
+      } else {
+
+          const detailedMessage = `OpenAI request failed to provide a commit message. Sad Gitto.\n Message Response${chatCompletion.data.choices[0].message}.`;
+          vscode.window.showErrorMessage(
+              'An error occurred.', 
+              { 
+                  title: 'More Details', 
+                  run: () => vscode.window.showInformationMessage(detailedMessage)
+              }
+          );
+          return Promise.reject(detailedMessage);
       }
 
       return commitMessage;
