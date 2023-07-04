@@ -98,7 +98,6 @@ export async function generateCommitMessage(
 
       let commitMessage: string;
       if (chatCompletion?.data?.choices[0]?.message?.function_call?.arguments) {
-
         const responseArguments =
           chatCompletion?.data?.choices[0]?.message?.function_call?.arguments;
         const parsedResponse = JSON.parse(responseArguments || "");
@@ -117,16 +116,9 @@ export async function generateCommitMessage(
       } else if (chatCompletion?.data?.choices[0]?.message?.content) {
         commitMessage = chatCompletion.data.choices[0].message.content;
       } else {
-
-          const detailedMessage = `OpenAI request failed to provide a commit message. Sad Gitto.\n Message Response${chatCompletion.data.choices[0].message}.`;
-          vscode.window.showErrorMessage(
-              'An error occurred.', 
-              { 
-                  title: 'More Details', 
-                  run: () => vscode.window.showInformationMessage(detailedMessage)
-              }
-          );
-          return Promise.reject(detailedMessage);
+        throw new Error(
+          `OpenAI request failed to provide a commit message. Sad Gitto.\n Message Response${chatCompletion.data.choices[0].message}.`
+        );
       }
 
       return commitMessage;

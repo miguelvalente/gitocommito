@@ -20,11 +20,11 @@ async function getStagedChangesDiff(
   filterType: string,
   directory: string
 ): Promise<[string, string]> {
-    await isGitRepo(directory);
+  await isGitRepo(directory);
 
-    let cmd = ["git", "diff", "-U1", "--cached", "--diff-filter=" + filterType];
-    let diffOutput = await runGitCommand(cmd, directory);
-    return [filterType, diffOutput];
+  let cmd = ["git", "diff", "-U1", "--cached", "--diff-filter=" + filterType];
+  let diffOutput = await runGitCommand(cmd, directory);
+  return [filterType, diffOutput];
 }
 
 export async function getFilteredStagedChanges(
@@ -54,15 +54,11 @@ export async function gitCommit(
 ): Promise<void> {
   try {
     if (!(await isGitRepo(directory))) {
-
       const detailedMessage = "Not inside a Git repository";
-      vscode.window.showErrorMessage(
-          'An error occurred.', 
-          { 
-              title: 'More Details', 
-              run: () => vscode.window.showInformationMessage(detailedMessage)
-          }
-      );
+      vscode.window.showErrorMessage("An error occurred.", {
+        title: "More Details",
+        run: () => vscode.window.showInformationMessage(detailedMessage),
+      });
       return Promise.reject(detailedMessage);
     }
 

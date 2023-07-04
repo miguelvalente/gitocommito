@@ -9,16 +9,15 @@
 
 ## Features
 
--  Automatic Commit Generation: Generate commits based on your staged changes.
--  Compliance with Conventional Commits: Adhere to the Conventional Commits standards without memorizing the conventions.
--  Integration with OpenAI: Leverages the power of OpenAI's language model to create meaningful commit messages.
+- Automatic Commit Generation: Generate commits based on your staged changes.
+- Compliance with Conventional Commits: Adhere to the Conventional Commits standards without memorizing the conventions.
+- Integration with OpenAI: Leverages the power of OpenAI's language model to create meaningful commit messages.
 
 ## Getting Started
 
 1.  Install the extension from the Visual Studio Code marketplace.
-2.  Set your OpenAI key by calling __`GitoCommito: Set OpenAI Key`__ in the VS Code command palette (__`Cmd/Ctrl + Shift + P`__ to open the command palette).
-3.  Start generating commit messages by calling __`GitoCommito: Generate Commit Message`__ or by clicking on Gito's face in the Source Control view.
-
+2.  Set your OpenAI key by calling **`GitoCommito: Set OpenAI Key`** in the VS Code command palette (**`Cmd/Ctrl + Shift + P`** to open the command palette).
+3.  Start generating commit messages by calling **`GitoCommito: Generate Commit Message`** or by clicking on Gito's face in the Source Control view.
 
 ## Requirements
 
@@ -26,6 +25,7 @@
 - An OpenAI API Key
 
 ## Release Notes
+
 ### Version 0.0.7
 
 - Initial Release

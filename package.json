@@ -50,7 +50,7 @@
           "group": "navigation"
         }
       ]
-    }    
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
