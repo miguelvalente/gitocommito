@@ -31,13 +31,26 @@
     "commands": [
       {
         "command": "extension.generateCommitMessage",
-        "title": "GitoCommito: Generate Commit Message"
+        "title": "GitoCommito: Generate Commit Message",
+        "icon": {
+          "dark": "./assets/menu-icon-dark.svg",
+          "light": "./assets/menu-icon-light.svg"
+        }
       },
       {
         "command": "extension.setOpenAIKey",
         "title": "GitoCommito: Set OpenAI Key"
       }
-    ]
+    ],
+    "menus": {
+      "scm/title": [
+        {
+          "when": "scmProvider == git",
+          "command": "extension.generateCommitMessage",
+          "group": "navigation"
+        }
+      ]
+    }    
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
