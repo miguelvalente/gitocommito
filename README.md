@@ -26,7 +26,7 @@
 - An OpenAI API Key
 
 ## Release Notes
-### Version 0.0.6
+### Version 0.0.7
 
 - Initial Release
 - Needs user testing. Feedback is highly appreciated. Please feel free to open an issue if you find any.

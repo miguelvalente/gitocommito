@@ -3,7 +3,7 @@
   "displayName": "GitoCommito",
   "publisher": "mvalente",
   "description": "",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "icon": "assets/logo.png",
   "engines": {
     "vscode": "^1.78.0"
