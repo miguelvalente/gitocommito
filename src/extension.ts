@@ -24,7 +24,14 @@ export function activate(context: vscode.ExtensionContext) {
       const stagedChanges = await getFilteredStagedChanges(directory);
       const allDifs = Object.values(stagedChanges).join("-------\n");
       if (!allDifs || allDifs.length === 0) {
-      throw new Error('No staged changes were found. Please add your changes before annoying Gito.');
+          const detailedMessage = 'No staged changes were found. Please add your changes before annoying Gito.';
+          vscode.window.showErrorMessage(
+              'An error occurred.', 
+              { 
+                  title: 'More Details', 
+                  run: () => vscode.window.showInformationMessage(detailedMessage)
+              }
+          );
       }
 
 
