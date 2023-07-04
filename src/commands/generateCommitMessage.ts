@@ -30,7 +30,7 @@ export async function generateCommitMessage(
         messages: [
           {
             role: "system",
-            content: `You are a git user. You have staged changes. You want to commit them. You want to write a commit message.`,
+            content: `You are a git user. You have one or more staged changes. You want to commit them. You want to write a commit message that reflects all changes.`,
           },
           { role: "user", content: allDifs },
         ],
