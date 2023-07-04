@@ -1,7 +1,6 @@
 // generateCommitMessage.ts
 import { OpenAIApi } from "openai"; // Adjust according to your OpenAI SDK import
 import { get_encoding, encoding_for_model } from "@dqbd/tiktoken";
-import * as vscode from "vscode";
 
 const enc = get_encoding("cl100k_base");
 
@@ -15,15 +14,9 @@ export async function generateCommitMessage(
     const tokenCount = enc.encode(allDifs).length;
 
     if (tokenCount > 4096) {
-      const detailedMessage = `The commit message is too long. It has ${tokenCount} tokens. It should have less than 4096 tokens.`;
-      vscode.window.showErrorMessage(
-          'An error occurred.', 
-          { 
-              title: 'More Details', 
-              run: () => vscode.window.showInformationMessage(detailedMessage)
-          }
+      throw new Error(
+        `The commit message is too long. It has ${tokenCount} tokens. It should have less than 4096 tokens.`
       );
-      return Promise.reject(detailedMessage);
     } else {
       const chatCompletion = await openai.createChatCompletion({
         model: "gpt-3.5-turbo-16k-0613",
