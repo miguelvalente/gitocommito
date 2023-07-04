@@ -22,7 +22,7 @@ async function getStagedChangesDiff(
 ): Promise<[string, string]> {
     await isGitRepo(directory);
 
-    let cmd = ["git", "diff", "--cached", "--diff-filter=" + filterType];
+    let cmd = ["git", "diff", "-U1", "--cached", "--diff-filter=" + filterType];
     let diffOutput = await runGitCommand(cmd, directory);
     return [filterType, diffOutput];
 }
