@@ -1,130 +1,39 @@
-// generateCommitMessage.ts
-import { OpenAIApi } from "openai"; // Adjust according to your OpenAI SDK import
-import { get_encoding, encoding_for_model } from "@dqbd/tiktoken";
+import * as vscode from "vscode";
+import { getFilteredStagedChanges, gitCommit } from "../git/gitCommands";
+import { configureOpenAI } from "../openai/configureOpenAI";
+import { insertCommitTextBox } from "../git/gitAPI";
+import { openAICall } from "../openai/client";
 
-const enc = get_encoding("cl100k_base");
-
-export async function generateCommitMessage(
-  stagedChanges: { [key: string]: string },
-  openai: OpenAIApi // replace with the correct type according to your OpenAI wrapper
-): Promise<string> {
-  try {
-    const allDifs = Object.values(stagedChanges).join("-------\n");
-
-    const tokenCount = enc.encode(allDifs).length;
-
-    if (tokenCount > 4096) {
-      throw new Error(
-        `The commit message is too long. It has ${tokenCount} tokens. It should have less than 4096 tokens.`
-      );
-    } else {
-      const chatCompletion = await openai.createChatCompletion({
-        model: "gpt-3.5-turbo-16k-0613",
-        temperature: 0.9,
-        messages: [
-          {
-            role: "system",
-            content: `You are a git user with have staged changes. You want to commit the changes. You need to write a commit message. Use the diff text to write a accurate commit message. The diff output contains the most relevant information. Information like filename is secondary. Focus on constrasting deletion versus addition of code lines.`,
-          },
-          { role: "user", content: allDifs },
-        ],
-        functions: [
-          {
-            name: "generate_commit",
-            description: "Generate commit based on allDifs",
-            parameters: {
-              type: "object",
-              properties: {
-                changeType: {
-                  type: "string",
-                  enum: [
-                    "docs",
-                    "feat",
-                    "fix",
-                    "refactor",
-                    "test",
-                    "style",
-                    "chore",
-                    "ci",
-                    "perf",
-                    "build",
-                    "revert",
-                    "other",
-                  ],
-                },
-                emoji: {
-                  type: "string",
-                  enum: [
-                    ":art:",
-                    ":zap:",
-                    ":fire:",
-                    ":bug:",
-                    ":white_check_mark:",
-                    ":lock:",
-                    ":arrow_up:",
-                    ":arrow_down:",
-                    ":wastebasket:",
-                    ":passport_control:",
-                    ":adhesive_bandage:",
-                    ":monocle_face:",
-                    ":coffin:",
-                    ":test_tube:",
-                    ":necktie:",
-                    ":stethoscope:",
-                    ":bricks:",
-                    ":technologist:",
-                    ":money_with_wings:",
-                    ":thread:",
-                    ":safety_vest:",
-                  ],
-                  description:
-                    "The picked emoji should be picked according to its Conventional Commit meaning",
-                },
-                subject: {
-                  type: "string",
-                  description:
-                    "A short, imperative tense description of the change",
-                },
-                body: {
-                  type: "string",
-                  description: "A longer description of the change",
-                },
-              },
-              required: ["changeType", "emoji", "subject"],
-            },
-          },
-        ],
-      });
-
-      let commitMessage: string;
-      if (chatCompletion?.data?.choices[0]?.message?.function_call?.arguments) {
-        const responseArguments =
-          chatCompletion?.data?.choices[0]?.message?.function_call?.arguments;
-        const parsedResponse = JSON.parse(responseArguments || "");
-
-        const changeType = parsedResponse.changeType;
-        const emoji = parsedResponse.emoji;
-        const subject = parsedResponse.subject;
-        const body = parsedResponse.body;
-
-        commitMessage = `${changeType}: ${emoji} ${subject}`;
-
-        // Check if body is defined and non-empty before appending it to commitMessage
-        if (body && body.trim()) {
-          commitMessage += `\n\n${body}`;
-        }
-      } else if (chatCompletion?.data?.choices[0]?.message?.content) {
-        commitMessage = chatCompletion.data.choices[0].message.content;
-      } else {
-        throw new Error(
-          `OpenAI request failed to provide a commit message. Sad Gitto.\n Message Response${chatCompletion.data.choices[0].message}.`
-        );
-      }
-
-      return commitMessage;
-    }
-  } catch (error) {
-    console.error(`Error generating commit message: ${error}`);
-    throw error;
+export async function generateCommitMessage() {
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    vscode.window.showErrorMessage("No workspace folder is open");
+    return;
   }
+  const openai = configureOpenAI();
+
+  // Assuming you want to run the command on the first workspace folder
+  const directory = workspaceFolders[0].uri.fsPath;
+  console.log(directory);
+
+  // get staged changes
+  // const stagedChanges = await getFilteredStagedChanges(directory);
+  const stagedChanges = await getFilteredStagedChanges(
+    "/home/mvalente/deving/gitocommito"
+  );
+  const allDifs = Object.values(stagedChanges).join("-------\n");
+  if (!allDifs || allDifs.length === 0) {
+    throw new Error(
+      "No staged changes were found. Please add your changes before annoying Gito."
+    );
+  }
+
+  console.log(stagedChanges);
+
+  // Generate commit message
+  const commitMessage = await openAICall(stagedChanges, openai);
+  console.log(commitMessage);
+
+  // Then place the commit message in the commit textbox
+  await insertCommitTextBox(commitMessage);
 }

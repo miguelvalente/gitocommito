@@ -1,13 +1,13 @@
-// getStagedChanges.ts
-// getStagedChanges.ts
 import * as vscode from "vscode";
-import { exec } from "child_process"; // you need to import exec from the correct package
+import { exec } from "child_process";
 
+// Utility Functions
+function sanitizeMessage(message: string): string {
+  return message.replace(/"/g, '\\"');
+}
 
-function runGitCommand(
-  cmd: string[],
-  directory: string
-): Promise<string> {
+// Git-related Functions
+function runGitCommand(cmd: string[], directory: string): Promise<string> {
   return new Promise((resolve, reject) => {
     exec(
       cmd.join(" "),
@@ -35,10 +35,6 @@ async function isGitRepo(directory: string): Promise<boolean> {
   }
 }
 
-function sanitizeMessage(message: string): string {
-  return message.replace(/"/g, '\\"');
-}
-
 async function getStagedChangesDiff(
   filterType: string,
   directory: string
@@ -50,6 +46,7 @@ async function getStagedChangesDiff(
   return [filterType, diffOutput];
 }
 
+// Exported Functions
 export async function getFilteredStagedChanges(
   directory: string
 ): Promise<{ [key: string]: string }> {
@@ -76,7 +73,7 @@ export async function gitCommit(
   message: string
 ): Promise<void> {
   try {
-    await isGitRepo(directory)
+    await isGitRepo(directory);
     // Sanitize the commit message
     const sanitizedMessage = sanitizeMessage(message);
 
