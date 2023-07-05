@@ -59,7 +59,7 @@ export async function openAICall(
   const allDifs = Object.values(stagedChanges).join("-------\n");
 
   chechDiffLenght(allDifs);
-  let content = `You are a git user with one or more changes. You want to accuratly describe ALL the changes in  commit message. You will reason the accurate commit message from the git diff output. The diff output contains the most relevant information.`;
+  let content = `You are a git user with one or more changes. You want to accuratly describe ALL the changes in commit message. You will reason the accurate commit message from the git diff output. The diff output contains the most relevant information.`;
 
   // let content = `You are to act as the author of a commit message in git. Your mission is to create clean and comprehensive commit messages in the conventional commit convention and explain WHAT were the changes and WHY the changes were done. I'll send you an output of 'git diff --staged' command, and you convert it into a commit message.`;
   Object.keys(stagedChanges).forEach((key) => {
