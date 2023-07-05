@@ -29,7 +29,9 @@ async function isGitRepo(directory: string): Promise<boolean> {
     await runGitCommand(["git", "status"], directory);
     return true;
   } catch (error) {
-    return false;
+    throw new Error(
+      "No staged changes were found. Please add your changes before annoying Gito."
+    );
   }
 }
 
@@ -74,15 +76,7 @@ export async function gitCommit(
   message: string
 ): Promise<void> {
   try {
-    if (!(await isGitRepo(directory))) {
-      const detailedMessage = "Not inside a Git repository";
-      vscode.window.showErrorMessage("An error occurred.", {
-        title: "More Details",
-        run: () => vscode.window.showInformationMessage(detailedMessage),
-      });
-      return Promise.reject(detailedMessage);
-    }
-
+    await isGitRepo(directory)
     // Sanitize the commit message
     const sanitizedMessage = sanitizeMessage(message);
 
