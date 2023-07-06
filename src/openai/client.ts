@@ -4,11 +4,11 @@ import { get_encoding } from "@dqbd/tiktoken";
 const enc = get_encoding("cl100k_base");
 
 function chechDiffLenght(text: string) {
-  if (enc.encode(text).length > 4096) {
+  if (enc.encode(text).length > 16013) {
     throw new Error(
       `The commit message is too long. It has ${
         enc.encode(text).length
-      } tokens. It should have less than 4096 tokens.`
+      } tokens. It should have less than 16013 tokens.`
     );
   }
 }
@@ -16,8 +16,7 @@ function chechDiffLenght(text: string) {
 function generateSystemMessage(filter: string, content: string): string {
   switch (filter) {
     case "A":
-      content +=
-        " Note: This commit added new files.";
+      content += " Note: This commit added new files.";
       break;
     case "C":
       content += " Note: This commit involves files that were copied.";
@@ -56,18 +55,27 @@ export async function openAICall(
   stagedChanges: { [key: string]: string },
   openai: OpenAIApi // replace with the correct type according to your OpenAI wrapper
 ): Promise<string> {
-  const allDifs = Object.values(stagedChanges).join("-------\n");
+  let allDifs = Object.values(stagedChanges).join("-------\n");
 
   chechDiffLenght(allDifs);
-  let content = `You are a git user with one or more changes. You want to accuratly describe ALL the changes in commit message. You will reason the accurate commit message from the git diff output. The diff output contains the most relevant information.`;
+  let content =
+    "You are a git user with one or more changes in the codenase. " +
+    "You want to accurately describe ALL CHANGES in commit a message. " +
+    "You will reason the accurate commit message from the git diff output. " +
+    "The diff output contains the most relevant information. " +
+    "There can be multiple changes in a commit message. " +
+    "Reflect ALL CHANGES in the commit message. " +
+    "You must find the OVERARCHING CHANGE type to select the RIGHT GitEmoji. " +
+    "Use the RIGHT GitEmoji to reflect THE OVERACHING CHANGE. ";
 
   // let content = `You are to act as the author of a commit message in git. Your mission is to create clean and comprehensive commit messages in the conventional commit convention and explain WHAT were the changes and WHY the changes were done. I'll send you an output of 'git diff --staged' command, and you convert it into a commit message.`;
   Object.keys(stagedChanges).forEach((key) => {
     content = generateSystemMessage(key, content);
   });
-  content +=
-    "Only focus on the changes that are relevant to the commit. Use the GitEmoji to reflect the changes. There can be multiple changes in a commit message. Reflect all the changes in the commit message.";
 
+  const gitEmojiDescripion =
+    "Use the right GitEmoji to reflect the OVERARCHING CHANGE type based on its DESCRIPTION." +
+    "DESCRIPTION Comes after the PIPE operator |";
   const chatCompletion = await openai.createChatCompletion({
     model: "gpt-3.5-turbo-16k-0613",
     temperature: 0.8,
@@ -105,39 +113,39 @@ export async function openAICall(
             gitEmoji: {
               type: "string",
               enum: [
-                ":art:",
-                ":zap:",
-                ":fire:",
-                ":bug:",
-                ":white_check_mark:",
-                ":lock:",
-                ":arrow_up:",
-                ":arrow_down:",
-                ":wastebasket:",
-                ":passport_control:",
-                ":adhesive_bandage:",
-                ":monocle_face:",
-                ":coffin:",
-                ":test_tube:",
-                ":necktie:",
-                ":stethoscope:",
-                ":bricks:",
-                ":technologist:",
-                ":money_with_wings:",
-                ":thread:",
-                ":safety_vest:",
+                ":art:|Refactoring code to make it cleaner and more maintainable.",
+                ":zap:|Optimizing code to enhance its performance.",
+                ":fire:|Deleting code or files that are no longer needed.",
+                ":bug:|Fixing an error in the code.",
+                ":white_check_mark:|Adding tests to ensure the code works as intended.",
+                ":lock:|Implementing or improving security measures.",
+                ":arrow_up:|Upgrading to a newer version of a dependency.",
+                ":arrow_down:|Downgrading to an older version of a dependency.",
+                ":wastebasket:|Marking code for future removal or replacement.",
+                ":passport_control:|Working on authentication, authorization, and user permissions.",
+                ":adhesive_bandage:|Making a minor fix that isn’t urgent.",
+                ":monocle_face:|Examining data or inspecting code for analysis.",
+                ":coffin:|Removing code that is obsolete or redundant.",
+                ":test_tube:|Adding a test that is designed to fail, for testing purposes.",
+                ":necktie:|Adding or modifying code that deals with business processes.",
+                ":stethoscope:|Adding or modifying health checks, usually for production monitoring.",
+                ":bricks:|Making changes related to system infrastructure.",
+                ":technologist:|Enhancing the development environment or tools.",
+                ":money_with_wings:|Adding or modifying code related to financial transactions or fundraising.",
+                ":thread:|Adding or modifying code for parallel processing.",
+                ":safety_vest:|Adding or modifying validation checks.",
               ],
-              description: "Use GitMoji convention related to the most overarching changes",
+              description: gitEmojiDescripion,
             },
             subject: {
               type: "string",
               description:
-                "A short, imperative tense description that encapsulates the change or changes.",
+                "A short, imperative tense description that encapsulates ALL CHANGES.",
             },
             body: {
               type: "string",
               description:
-                "Add a short description of WHY the changes are done after the commit message. KEEP IT SHORT.",
+                "Add a short description of WHY the changes are done after the commit message.  WRITE SHORT BULLET POINTS.",
             },
           },
           required: ["changeType", "gitEmoji", "subject", "body"],
@@ -156,7 +164,7 @@ export async function openAICall(
     );
 
     const changeType = parsedResponse.changeType;
-    const emoji = parsedResponse.gitEmoji;
+    const emoji = parsedResponse.gitEmoji.split("|")[0];
     const subject = parsedResponse.subject;
     const body = parsedResponse.body;
 
