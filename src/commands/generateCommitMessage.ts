@@ -14,25 +14,22 @@ export async function generateCommitMessage() {
 
   // Assuming you want to run the command on the first workspace folder
   const directory = workspaceFolders[0].uri.fsPath;
-  console.log(directory);
 
   // get staged changes
   // const stagedChanges = await getFilteredStagedChanges(directory);
   const stagedChanges = await getFilteredStagedChanges(
     "/home/mvalente/deving/gitocommito"
   );
-  const allDifs = Object.values(stagedChanges).join("-------\n");
+  const allDifs = Object.values(stagedChanges).join(" ");
   if (!allDifs || allDifs.length === 0) {
     throw new Error(
       "No staged changes were found. Please add your changes before annoying Gito."
     );
   }
 
-  console.log(stagedChanges);
 
   // Generate commit message
   const commitMessage = await openAICall(stagedChanges, openai);
-  console.log(commitMessage);
 
   // Then place the commit message in the commit textbox
   await insertCommitTextBox(commitMessage);
