@@ -20,7 +20,7 @@ export async function generateCommitMessage() {
   const stagedChanges = await getFilteredStagedChanges(
     "/home/mvalente/deving/gitocommito"
   );
-  const allDifs = Object.values(stagedChanges).join(" ");
+  const allDifs = Object.values(stagedChanges).join("\n----\n");
   if (!allDifs || allDifs.length === 0) {
     throw new Error(
       "No staged changes were found. Please add your changes before annoying Gito."
