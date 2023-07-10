@@ -1,6 +1,8 @@
 import { OpenAIApi } from "openai";
 import { get_encoding } from "@dqbd/tiktoken";
-import { create } from "domain";
+import {
+  ChatCompletionRequestMessageRoleEnum,
+} from "openai";
 
 const enc = get_encoding("cl100k_base");
 
@@ -14,78 +16,90 @@ function chechDiffLenght(text: string) {
   }
 }
 
-function generateSystemMessage(filter: string, content: string): string {
-  switch (filter) {
-    case "A":
-      content += " Note: This commit added new files.";
-      break;
-    case "C":
-      content += " Note: This commit involves files that were copied.";
-      break;
-    case "D":
-      content +=
-        " Note: This commit involves files that were deleted from the repository.";
-      break;
-    case "M":
-      content +=
-        " Note: This commit involves existing files that were modified.";
-      break;
-    case "R":
-      content +=
-        " Note: This commit involves files or directories that were renamed.";
-      break;
-    case "T":
-      content +=
-        " Note: This commit involves files that had their type changed.";
-      break;
-    case "U":
-      content += " Note: This commit involves files that have not been merged.";
-      break;
-    case "B":
-      content += " Note: This commit involves files that have broken pairing.";
-      break;
-    default:
-      content += " Note: This commit involves changes of unknown status.";
-      break;
-  }
 
-  return content;
-}
-
-export async function openAICall(
+export async function startCommitGeneration(
   stagedChanges: { [key: string]: string },
   openai: OpenAIApi // replace with the correct type according to your OpenAI wrapper
 ): Promise<string> {
-  let allDifs = Object.values(stagedChanges).join(" ");
+  let allDifs = Object.values(stagedChanges).join("");
 
-  chechDiffLenght(allDifs);
-  let content =
-    "You are a git user with one or more changes in the codebase. " +
-    "You want to accurately describe ALL CHANGES in commit a message. " +
-    "You will reason the accurate commit message that reflects ALL CHANGES from the git diff output. " +
-    "The diff output contains the MOST IMPORTANT information. " +
-    "There can be multiple changes in a commit message. " +
-    "Reflect ALL IMPORTANT CHANGES in the commit message. ";
+  // Stage1: First stage summary of all individual changes based on git diff output.
+  let firstStageMessages = [
+    {
+      role: ChatCompletionRequestMessageRoleEnum.System,
+      content:
+        "You are a world class Software Developer. " +
+        "You are going to look at a git diff output and summarize the changes. " +
+        "The summary should not include the code. " +
+        "You carefully explain code with great detail and accuracy. " +
+        "You look for `diff --git` as a sign of the type of change and file. " +
+        "You organize your explanations in markdown-formatted, bulleted lists.",
+    },
+    {
+      role: ChatCompletionRequestMessageRoleEnum.User,
+      content:
+        "Please explain the following diff output. " +
+        "Organize your explanation as a markdown-formatted, bulleted list." +
+        "\ngit diff --staged" +
+        `${allDifs}`,
+    },
+  ];
 
-  // let content = `You are to act as the author of a commit message in git. Your mission is to create clean and comprehensive commit messages in the conventional commit convention and explain WHAT were the changes and WHY the changes were done. I'll send you an output of 'git diff --staged' command, and you convert it into a commit message.`;
-  Object.keys(stagedChanges).forEach((key) => {
-    content = generateSystemMessage(key, content);
-  });
-
-  const gitEmojiDescripion =
-    "Use the right GitEmoji to reflect the OVERARCHING CHANGE type based on its DESCRIPTION." +
-    "DESCRIPTION Comes after the PIPE operator |";
-
-  const generatedCommitMessage = await openai.createChatCompletion({
+  const generatedFirstStageMessage = await openai.createChatCompletion({
     model: "gpt-3.5-turbo-16k-0613",
-    temperature: 0.8,
-    messages: [
-      {
-        role: "system",
-        content: content,
-      },
-      { role: "user", content: allDifs },
-    ],
+    temperature: 0.4,
+    messages: firstStageMessages,
+  });
+  console.log(generatedFirstStageMessage?.data?.choices[0]?.message?.content);
+
+  // Second stage reason about changes commit message.
+  let secondStageMessages = [
+    {
+      role: ChatCompletionRequestMessageRoleEnum.Assistant,
+      content: generatedFirstStageMessage?.data?.choices[0]?.message?.content,
+    },
+    {
+      role: ChatCompletionRequestMessageRoleEnum.User,
+      content:
+        "Pick out the most important changes. " +
+        "Provide a Reason about the functionality of the new changes. " +
+        "You organize your explanations in markdown-formatted, bulleted lists.",
+    },
+  ];
+
+  const secondStageMessagesAll = [
+    ...firstStageMessages,
+    ...secondStageMessages,
+  ];
+
+  const generatedSecondStageMessage = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo-16k-0613",
+    temperature: 0.4,
+    messages: secondStageMessagesAll,
+  });
+  console.log(generatedSecondStageMessage?.data?.choices[0]?.message?.content);
+
+  // Third stage commit message with git emoji.
+  let thirdStageMessages = [
+    {
+      role: ChatCompletionRequestMessageRoleEnum.Assistant,
+      content: generatedSecondStageMessage?.data?.choices[0]?.message?.content,
+    },
+    {
+      role: ChatCompletionRequestMessageRoleEnum.User,
+      content:
+        "Use everything until now to write a single commit message that encapsulates the changes. " +
+        "The commit message should be in the conventional commit format. " +
+        "Use bullet points to organize your commit message. ",
+    },
+  ];
+
+  const thirdStageMessagesAll = [ ...secondStageMessagesAll, ...thirdStageMessages ]; 
+
+  const generatedThirdStageMessage = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo-16k-0613",
+    temperature: 0.4,
+    messages: thirdStageMessagesAll,
     functions: [
       {
         name: "generate_commit",
@@ -110,45 +124,46 @@ export async function openAICall(
                 "other",
               ],
             },
-            gitEmoji: {
+            gitEmojiDescription: {
               type: "string",
               enum: [
-                ":art:",
-                ":zap:",
-                ":fire:",
-                ":bug:",
-                ":white_check_mark:",
-                ":lock:",
-                ":arrow_up:",
-                ":arrow_down:",
-                ":wastebasket:",
-                ":passport_control:",
-                ":adhesive_bandage:",
-                ":monocle_face:",
-                ":coffin:",
-                ":test_tube:",
-                ":necktie:",
-                ":stethoscope:",
-                ":bricks:",
-                ":technologist:",
-                ":money_with_wings:",
-                ":thread:",
-                ":safety_vest:",
+                "Format code to make it cleaner and more maintainable",
+                "Refactor code",
+                "Optimizing code to enhance its performance",
+                "Deleting code or files that are no longer needed",
+                "Fixing an error in the code",
+                "Adding tests to ensure the code works as intended",
+                "Implementing or improving security measures",
+                "Upgrading to a newer version of a dependency",
+                "Downgrading to an older version of a dependency",
+                "Marking code for future removal or replacement",
+                "Working on authentication, authorization, and user permissions",
+                "Making a minor fix that isn’t urgent",
+                "Examining data or inspecting code for analysis",
+                "Removing code that is obsolete or redundant",
+                "Adding a test that is designed to fail, for testing purposes",
+                "Adding or modifying code that deals with business processes",
+                "Adding or modifying health checks, usually for production monitoring",
+                "Making changes related to system infrastructure",
+                "Enhancing the development environment or tools",
+                "Adding or modifying code related to financial transactions or fundraising",
+                "Adding or modifying code for parallel processing",
+                "Adding or modifying validation checks",
               ],
-              description: gitEmojiDescripion,
+              description: "Select the description that makes most sense based on the subject and body of the commit message.",
             },
             subject: {
               type: "string",
               description:
-                "A short, imperative tense description that encapsulates ALL CHANGES.",
+                "A short, imperative tense description that explains the main Reason behind the commit.",
             },
             body: {
               type: "string",
               description:
-                "Add a short description of WHY the changes are done after the commit message.  WRITE SHORT BULLET POINTS.",
+                "Use thought out reasoning to explain the commit.",
             },
           },
-          required: ["changeType", "gitEmoji", "subject", "body"],
+          required: ["changeType", "gitEmojiDescription", "subject", "body"],
         },
       },
     ],
@@ -158,23 +173,46 @@ export async function openAICall(
   });
 
   let commitMessage: string;
-  let emoji: string;
+  let emojiDescription: string;
   let changeType: string;
   let subject: string;
   let body: string;
-
+  const costEmojiDescriptiontoGitEmoji: { [key: string]: string } = {
+    "Format code to make it cleaner and more maintainable": ":art:",
+    "Refactor code": ":recycle:",
+    "Optimizing code to enhance its performance": ":zap:",
+    "Deleting code or files that are no longer needed": ":fire:",
+    "Fixing an error in the code": ":bug:",
+    "Adding tests to ensure the code works as intended": ":white_check_mark:",
+    "Implementing or improving security measures": ":lock:",
+    "Upgrading to a newer version of a dependency": ":arrow_up:",
+    "Downgrading to an older version of a dependency": ":arrow_down:",
+    "Marking code for future removal or replacement": ":wastebasket:",
+    "Working on authentication, authorization, and user permissions": ":passport_control:",
+    "Making a minor fix that isn’t urgent": ":adhesive_bandage:",
+    "Examining data or inspecting code for analysis": ":monocle_face:",
+    "Removing code that is obsolete or redundant": ":coffin:",
+    "Adding a test that is designed to fail, for testing purposes": ":test_tube:",
+    "Adding or modifying code that deals with business processes": ":necktie:",
+    "Adding or modifying health checks, usually for production monitoring": ":stethoscope:",
+    "Making changes related to system infrastructure": ":bricks:",
+    "Enhancing the development environment or tools": ":technologist:",
+    "Adding or modifying code related to financial transactions or fundraising": ":money_with_wings:",
+    "Adding or modifying code for parallel processing": ":thread:",
+    "Adding or modifying validation checks": ":safety_vest:",
+  };
 
   try {
     const parsedResponse = JSON.parse(
-      generatedCommitMessage?.data?.choices[0]?.message?.function_call
+      generatedThirdStageMessage?.data?.choices[0]?.message?.function_call
         ?.arguments || ""
     );
 
     changeType = parsedResponse.changeType;
-    emoji = parsedResponse.gitEmoji.split("|")[0];
+    emojiDescription = parsedResponse.gitEmojiDescription;
     subject = parsedResponse.subject;
     body = parsedResponse.body;
-    commitMessage = `${changeType}: ${emoji} ${subject}`;
+    commitMessage = `${changeType}: ${costEmojiDescriptiontoGitEmoji[emojiDescription]} ${subject}`;
 
     if (body && body.trim()) {
       commitMessage += `\n\n${body}`;
@@ -185,111 +223,6 @@ export async function openAICall(
     );
   }
 
-
-  let contentCheckSystem =
-    `You are tech lead on a software project. ` +
-    `You are making sure the commits are correct. ` +
-    `You have ONE TASK. Check if the GitEmoji is the right one. ` +
-    `You have access to the following GITEMOJI INFORMATION to HELP make the decision. ` +
-    `:art:|Refactoring code to make it cleaner and more maintainable. ` +
-    `:zap:|Optimizing code to enhance its performance. ` +
-    `:fire:|Deleting code or files that are no longer needed. ` +
-    `:bug:|Fixing an error in the code. ` +
-    `:white_check_mark:|Adding tests to ensure the code works as intended. ` +
-    `:lock:|Implementing or improving security measures. ` +
-    `:arrow_up:|Upgrading to a newer version of a dependency. ` +
-    `:arrow_down:|Downgrading to an older version of a dependency. ` +
-    `:wastebasket:|Marking code for future removal or replacement. ` +
-    `:passport_control:|Working on authentication, authorization, and user permissions. ` +
-    `:adhesive_bandage:|Making a minor fix that isn’t urgent. ` +
-    `:monocle_face:|Examining data or inspecting code for analysis. ` +
-    `:coffin:|Removing code that is obsolete or redundant. ` +
-    `:test_tube:|Adding a test that is designed to fail, for testing purposes. ` +
-    `:necktie:|Adding or modifying code that deals with business processes. ` +
-    `:stethoscope:|Adding or modifying health checks, usually for production monitoring. ` +
-    `:bricks:|Making changes related to system infrastructure. ` +
-    `:technologist:|Enhancing the development environment or tools. ` +
-    `:money_with_wings:|Adding or modifying code related to financial transactions or fundraising. ` +
-    `:thread:|Adding or modifying code for parallel processing. ` +
-    `:safety_vest:|Adding or modifying validation checks. ` +
-    `The user will now provide you with a commit message. Choose the correct GitEmoji.`;
-
-  let contentCheckUser = `This is the commit message:  ${commitMessage}`;
-
-  const commitMessageCheck = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo-16k-0613",
-    temperature: 0.2,
-    messages: [
-      {
-        role: "system",
-        content: contentCheckSystem,
-      },
-      { role: "user", content: contentCheckUser },
-    ],
-    functions: [
-      {
-        name: "git_emoji_check",
-        description: "Gives the correct GitEmoji.",
-        parameters: {
-          type: "object",
-          properties: {
-            gitEmoji: {
-              type: "string",
-              enum: [
-                ":art:|Refactoring code to make it cleaner and more maintainable.",
-                ":zap:|Optimizing code to enhance its performance.",
-                ":fire:|Deleting code or files that are no longer needed.",
-                ":bug:|Fixing an error in the code.",
-                ":white_check_mark:|Adding tests to ensure the code works as intended.",
-                ":lock:|Implementing or improving security measures.",
-                ":arrow_up:|Upgrading to a newer version of a dependency.",
-                ":arrow_down:|Downgrading to an older version of a dependency.",
-                ":wastebasket:|Marking code for future removal or replacement.",
-                ":passport_control:|Working on authentication, authorization, and user permissions.",
-                ":adhesive_bandage:|Making a minor fix that isn’t urgent.",
-                ":monocle_face:|Examining data or inspecting code for analysis.",
-                ":coffin:|Removing code that is obsolete or redundant.",
-                ":test_tube:|Adding a test that is designed to fail, for testing purposes.",
-                ":necktie:|Adding or modifying code that deals with business processes.",
-                ":stethoscope:|Adding or modifying health checks, usually for production monitoring.",
-                ":bricks:|Making changes related to system infrastructure.",
-                ":technologist:|Enhancing the development environment or tools.",
-                ":money_with_wings:|Adding or modifying code related to financial transactions or fundraising.",
-                ":thread:|Adding or modifying code for parallel processing.",
-                ":safety_vest:|Adding or modifying validation checks.",
-              ],
-              description: gitEmojiDescripion,
-            },
-          },
-          required: ["gitEmoji"],
-        },
-      },
-    ],
-    function_call: {
-      name: "git_emoji_check",
-    },
-  });
-
-  try {
-    const parsedResponse = JSON.parse(
-      generatedCommitMessage?.data?.choices[0]?.message?.function_call
-        ?.arguments || ""
-    );
-    emoji = parsedResponse.gitEmoji.split("|")[0];
-  } catch (error) {
-    throw new Error(
-      `OpenAI request failed to provide a correct GitEmoji. Sad Gitto.\n Message Response${error}.`
-    );
-  }
-  console.log("FIRST" +commitMessage);
-
-  commitMessage = `${changeType}: ${emoji} ${subject}`;
-  // Check if body is defined and non-empty before appending it to commitMessage
-  if (body && body.trim()) {
-    commitMessage += `\n\n${body}`;
-  }
-
   console.log(commitMessage);
-
   return commitMessage;
 }

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { getFilteredStagedChanges, gitCommit } from "../git/gitCommands";
 import { configureOpenAI } from "../openai/configureOpenAI";
 import { insertCommitTextBox } from "../git/gitAPI";
-import { openAICall } from "../openai/client";
+import { startCommitGeneration } from "../openai/client";
 
 export async function generateCommitMessage() {
   const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -27,9 +27,8 @@ export async function generateCommitMessage() {
     );
   }
 
-
   // Generate commit message
-  const commitMessage = await openAICall(stagedChanges, openai);
+  const commitMessage = await startCommitGeneration(stagedChanges, openai);
 
   // Then place the commit message in the commit textbox
   await insertCommitTextBox(commitMessage);
