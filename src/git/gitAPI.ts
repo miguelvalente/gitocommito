@@ -28,17 +28,17 @@ async function getRepository({
   workspaceFolders?: readonly vscode.WorkspaceFolder[];
 }) {
   const _arg = arg?.fsPath;
-  console.log("_arg: ", _arg);
+  // console.log("_arg: ", _arg);
 
   const repositories = git.repositories
     .map((repo) => repo.rootUri.fsPath)
     .join(", ");
-  console.log("repositories: ", repositories);
+  // console.log("repositories: ", repositories);
 
   const _workspaceFolders = workspaceFolders
     ?.map((folder) => folder.uri.fsPath)
     .join(", ");
-  console.log("workspaceFolders: ", workspaceFolders);
+  // console.log("workspaceFolders: ", workspaceFolders);
 
   if (_arg) {
     const repo = git.repositories.find(function (r) {
@@ -69,8 +69,8 @@ async function getRepository({
     };
   });
 
-  console.log("repositories: ", git.repositories);
-  console.log("items: ", items);
+  // console.log("repositories: ", git.repositories);
+  // console.log("items: ", items);
 
   return git.repositories[0];
 }

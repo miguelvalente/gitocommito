@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { getFilteredStagedChanges, gitCommit } from "../git/gitCommands";
 import { configureOpenAI } from "../openai/configureOpenAI";
 import { insertCommitTextBox } from "../git/gitAPI";
-import { openAICall } from "../openai/client";
+import { startCommitGeneration } from "../openai/client";
 
 export async function generateCommitMessage() {
   const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -14,25 +14,21 @@ export async function generateCommitMessage() {
 
   // Assuming you want to run the command on the first workspace folder
   const directory = workspaceFolders[0].uri.fsPath;
-  console.log(directory);
 
   // get staged changes
   // const stagedChanges = await getFilteredStagedChanges(directory);
   const stagedChanges = await getFilteredStagedChanges(
     "/home/mvalente/deving/gitocommito"
   );
-  const allDifs = Object.values(stagedChanges).join("-------\n");
+  const allDifs = Object.values(stagedChanges).join("\n----\n");
   if (!allDifs || allDifs.length === 0) {
     throw new Error(
       "No staged changes were found. Please add your changes before annoying Gito."
     );
   }
 
-  console.log(stagedChanges);
-
   // Generate commit message
-  const commitMessage = await openAICall(stagedChanges, openai);
-  console.log(commitMessage);
+  const commitMessage = await startCommitGeneration(stagedChanges, openai);
 
   // Then place the commit message in the commit textbox
   await insertCommitTextBox(commitMessage);
