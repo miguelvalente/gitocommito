@@ -1,16 +1,14 @@
 {
   "name": "gitocommito",
   "displayName": "GitoCommito",
-  "publisher": "mvalente",
-  "description": "",
-  "version": "0.0.8",
-  "icon": "assets/logo.png",
-  "engines": {
-    "vscode": "^1.78.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/miguelvalente/gitocommito.git"
+  "version": "0.0.9",
+  "description": "GitoCommito is a VS Code extension to generate commit messages with the help of AI.",
+  "keywords": ["vscode-extension", "commit-messages", "AI", "openai"],
+  "author": "Miguel Valente",
+  "license": "MIT",
+  "homepage": "https://github.com/miguelvalente/gitocommito#readme",
+  "bugs": {
+    "url": "https://github.com/miguelvalente/gitocommito/issues"
   },
   "categories": [
     "Other"
