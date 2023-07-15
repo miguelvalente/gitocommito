@@ -3,7 +3,7 @@
   "displayName": "GitoCommito",
   "publisher": "mvalente",
   "description": "GitoCommito is a VS Code extension to generate commit messages with the help of AI.",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "icon": "assets/logo.png",
   "keywords": ["vscode-extension", "commit-messages", "AI", "openai"],
   "author": "Miguel Valente",

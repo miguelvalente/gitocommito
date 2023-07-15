@@ -26,7 +26,7 @@
 
 ## Release Notes
 
-### Version 0.0.10
+### Version 0.0.11
 
 - Initial Release
 - Needs user testing. Feedback is highly appreciated. Please feel free to open an issue if you find any.
