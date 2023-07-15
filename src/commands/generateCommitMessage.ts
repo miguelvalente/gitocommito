@@ -17,9 +17,7 @@ export async function generateCommitMessage() {
 
   // get staged changes
   // const stagedChanges = await getFilteredStagedChanges(directory);
-  const stagedChanges = await getFilteredStagedChanges(
-    "/home/mvalente/deving/gitocommito"
-  );
+  const stagedChanges = await getFilteredStagedChanges(directory);
   const allDifs = Object.values(stagedChanges).join("\n----\n");
   if (!allDifs || allDifs.length === 0) {
     throw new Error(
