@@ -24,6 +24,13 @@
 - Visual Studio Code
 - An OpenAI API Key
 
+## Know Issues and Future Improvements
+Check Mark Means Solved
+
+- [ ] Gito does not deal well with moving files
+- [ ] Gito does not deal with staged changes above a certain lenght
+- [ ] GitEmoji accuracy is low
+
 ## Release Notes
 
 ### Version 0.0.11
