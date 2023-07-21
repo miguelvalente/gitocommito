@@ -33,7 +33,9 @@ Check Mark Means Solved
 
 ## Release Notes
 
-### Version 0.0.11
+- See CHANGELOG.md
+
+### Version 0.0.12
 
 - Initial Release
 - Needs user testing. Feedback is highly appreciated. Please feel free to open an issue if you find any.

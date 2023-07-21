@@ -1,9 +1,9 @@
 # Change Log
 
-All notable changes to the "gitocommito" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [V0.0.12]
 
-## [Unreleased]
+- Added two options
 
-- Initial release
+  ⚡ GotaGoFast: The fastest but not the bestest. In case of simple changes.
+  🐢 GotaGoBest: The bestest but not the fastest. In case of complex changes.
