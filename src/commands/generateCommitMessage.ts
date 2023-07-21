@@ -17,7 +17,7 @@ export async function generateCommitMessage() {
   const openai = configureOpenAI();
 
   // Assuming you want to run the command on the first workspace folder
-  const directory = "/home/mvalente/deving/gitocommito" // workspaceFolders[0].uri.fsPath;
+  const directory = workspaceFolders[0].uri.fsPath;
 
   // get staged changes
   const stagedChanges = await getFilteredStagedChanges(directory);
@@ -30,7 +30,8 @@ export async function generateCommitMessage() {
   }
 
   // Ask user to select an option
-  const options = ["Turbo", "Comprehensive"];
+  const options = ["⚡ GotaGoFast: The fastest but not the bestest. \nIn case of simple changes.",
+                   "🐢 GotaGoBest: The bestest but not the fastest. \nIn case of complex changes."];
   const action = await vscode.window.showQuickPick(options, {
     placeHolder: "Select an action",
   });
@@ -43,10 +44,10 @@ export async function generateCommitMessage() {
   let commitMessage;
   // Generate commit message based on user's selection
   switch (action) {
-    case "Turbo":
+    case "⚡ GotaGoFast: The fastest but not the bestest. \nIn case of simple changes.":
       commitMessage = await startCommitGeneration(stagedChanges, openai);
       break;
-    case "Comprehensive":
+    case "🐢 GotaGoBest: The bestest but not the fastest. \nIn case of complex changes.":
       // Assuming startDetailedCommitGeneration exists and it generates a more comprehensive commit message
       commitMessage = await startDetailedCommitGeneration(
         stagedChanges,

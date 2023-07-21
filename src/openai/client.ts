@@ -1,7 +1,8 @@
 import { OpenAIApi } from "openai";
 import {
   FIRST_STAGE,
-  FIRST_STAGE_USER,
+  FIRST_STAGE_USER_GOTAGOBEST,
+  FIRST_STAGE_USER_GOTAGOFAST,
   SECOND_STAGE,
   THIRD_STAGE,
 } from "./prompts";
@@ -13,6 +14,25 @@ import {
   getAssistantMessages,
 } from "./client_helper";
 
+
+
+export async function startCommitGeneration(
+  stagedChanges: { [key: string]: string },
+  openai: OpenAIApi // replace with the correct type according to your OpenAI wrapper
+): Promise<string> {
+  const allDifs = Object.values(stagedChanges).join("");
+
+  const messages = getSystemMessage(FIRST_STAGE, FIRST_STAGE_USER_GOTAGOFAST(allDifs));
+
+  const commitResponse = await getCommitResponse(openai, messages);
+
+  let commitMessage = constructCommitMessage(commitResponse);
+
+  return commitMessage;
+}
+
+
+
 export async function startDetailedCommitGeneration(
   stagedChanges: { [key: string]: string },
   openai: OpenAIApi // replace with the correct type according to your OpenAI wrapper
@@ -22,7 +42,7 @@ export async function startDetailedCommitGeneration(
   // Stage1: First stage summary of all individual changes based on git diff output.
   const firstStageMessages = getSystemMessage(
     FIRST_STAGE,
-    FIRST_STAGE_USER(allDifs)
+    FIRST_STAGE_USER_GOTAGOBEST(allDifs)
   );
   const generatedFirstStageMessage = await getMessagesResponse(
     openai,
@@ -55,21 +75,3 @@ export async function startDetailedCommitGeneration(
   console.log(commitMessage);
   return commitMessage;
 }
-
-
-export async function startCommitGeneration(
-  stagedChanges: { [key: string]: string },
-  openai: OpenAIApi // replace with the correct type according to your OpenAI wrapper
-): Promise<string> {
-  const allDifs = Object.values(stagedChanges).join("");
-
-  const messages = getSystemMessage(FIRST_STAGE, FIRST_STAGE_USER(allDifs));
-
-  const commitResponse = await getCommitResponse(openai, messages);
-
-  let commitMessage = constructCommitMessage(commitResponse);
-
-  return commitMessage;
-}
-
-

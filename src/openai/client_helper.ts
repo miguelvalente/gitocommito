@@ -33,7 +33,7 @@ export async function getCommitResponse(openai: any, messages: any[]) {
               type: "string",
               enum: GIT_EMOJI_DESCRIPTION_ENUM,
               description:
-                "Select the description that makes most sense based on the subject and body of the commit message.",
+                "Choose teh description that reflects the changes as described in the body and subject. Select the description without modifying it. Select the description without modifying it based on the overall change.",
             },
             subject: {
               type: "string",
@@ -66,6 +66,9 @@ export function constructCommitMessage(commitResponse: any): string {
 
     const { changeType, gitEmojiDescription, subject, body } =
       parsedCommitResponse;
+
+    console.log("Change Type: ", changeType);
+    console.log("kit Emoji Description: ", gitEmojiDescription);
 
     commitMessage = `${changeType}: ${COST_EMOJI_DESCRIPTION_TO_GIT_EMOJI_MAP[gitEmojiDescription]} ${subject}`;
 

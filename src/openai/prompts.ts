@@ -1,13 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/naming-convention
-export function FIRST_STAGE_USER(diff: string) {
-  return (
-    "Use the following diff output to write a single commit message that encapsulates the changes. " +
-    "The commit message should be in the conventional commit format. " +
-    "Use bullet points to organize your commit message." +
-    "\ngit diff --staged" +
-    `${diff}`
-  );
-}
 export const FIRST_STAGE =
   "You are a world class Software Developer. " +
   "You are going to look at a git diff output and summarize the changes. " +
@@ -15,6 +5,27 @@ export const FIRST_STAGE =
   "You carefully explain code with great detail and accuracy. " +
   "You look for `diff --git` as a sign of the type of change and file. " +
   "You organize your explanations in markdown-formatted, bulleted lists.";
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export function FIRST_STAGE_USER_GOTAGOBEST(diff: string) {
+  return (
+    "Please explain the following diff output. " +
+    "Organize your explanation as a markdown-formatted, bulleted list." +
+    "\ngit diff --staged" +
+    `${diff}`
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export function FIRST_STAGE_USER_GOTAGOFAST(diff: string) {
+  return (
+    "Use the following diff output to write a single commit message that encapsulates the changes. " +
+    "The commit message should be in the conventional commit format. " +
+    "Organize your explanation as a markdown-formatted, bulleted list." +
+    "\ngit diff --staged" +
+    `${diff}`
+  );
+}
 
 export const SECOND_STAGE =
   "Pick out the most important changes. " +
@@ -47,23 +58,23 @@ export const GIT_EMOJI_DESCRIPTION_ENUM = [
   "Optimizing code to enhance its performance",
   "Deleting code or files that are no longer needed",
   "Fixing an error in the code",
-  "Adding tests to ensure the code works as intended",
-  "Implementing or improving security measures",
+  "Select if change is related to tests",
+  // "Implementing or improving security measures",
   "Use if involves upgrading packages or libraries to a newer version of a dependency. E.g: npm update or pip update",
   "Use if involves DOWNGRADING packages or libraries to a newer version of a dependency E.g: npm update or pip update",
   "Marking code for future removal or replacement",
-  "Working on authentication, authorization, and user permissions",
+  "Select this if changes are based on authentication, authorization, and user permissions",
   "Making a minor fix that isn’t urgent",
-  "Use if involves tools to examine data or inspect code for analysis",
+  "Select if changes involve tools to examine data or inspect code for analysis",
   "Removing code that is obsolete or redundant",
   "Adding a test that is designed to fail, for testing purposes",
-  "Adding or modifying code that deals with business processes",
-  "Adding or modifying health checks, usually for production monitoring",
-  "Making changes related to system infrastructure",
+  // "Adding or modifying code that deals with business processes",
+  // "Adding or modifying health checks, usually for production monitoring",
+  "Select if changes related to system infrastructure",
   "Enhancing the development environment or tools",
-  "Adding or modifying code related to financial transactions or fundraising",
-  "Adding or modifying code for parallel processing",
-  "Adding or modifying validation checks",
+  "Code related to financial transactions or fundraising",
+  "Code for parallel processing",
+  // "modifying validation checks",
 ];
 
 const EMOJI_MAP = [
@@ -73,7 +84,7 @@ const EMOJI_MAP = [
   ":fire:",
   ":bug:",
   ":white_check_mark:",
-  ":lock:",
+  // ":lock:",
   ":arrow_up:",
   ":arrow_down:",
   ":wastebasket:",
@@ -82,13 +93,13 @@ const EMOJI_MAP = [
   ":monocle_face:",
   ":coffin:",
   ":test_tube:",
-  ":necktie:",
-  ":stethoscope:",
+  // ":necktie:",
+  // ":stethoscope:",
   ":bricks:",
   ":technologist:",
   ":money_with_wings:",
   ":thread:",
-  ":safety_vest:",
+  // ":safety_vest:",
 ];
 
 export const COST_EMOJI_DESCRIPTION_TO_GIT_EMOJI_MAP: {
