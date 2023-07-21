@@ -13,7 +13,7 @@ import {
   getAssistantMessages,
 } from "./client_helper";
 
-export async function startCommitGeneration(
+export async function startDetailedCommitGeneration(
   stagedChanges: { [key: string]: string },
   openai: OpenAIApi // replace with the correct type according to your OpenAI wrapper
 ): Promise<string> {
@@ -55,4 +55,21 @@ export async function startCommitGeneration(
   console.log(commitMessage);
   return commitMessage;
 }
+
+
+export async function startCommitGeneration(
+  stagedChanges: { [key: string]: string },
+  openai: OpenAIApi // replace with the correct type according to your OpenAI wrapper
+): Promise<string> {
+  const allDifs = Object.values(stagedChanges).join("");
+
+  const messages = getSystemMessage(FIRST_STAGE, FIRST_STAGE_USER(allDifs));
+
+  const commitResponse = await getCommitResponse(openai, messages);
+
+  let commitMessage = constructCommitMessage(commitResponse);
+
+  return commitMessage;
+}
+
 
