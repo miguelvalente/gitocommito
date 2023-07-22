@@ -2,6 +2,11 @@
 
 ## [V0.0.12]
 
+- Better error display. More informative errors
+- Catch changes that are too long
+
+## [V0.0.12]
+
 - Added two options
 
   ⚡ GotaGoFast: The fastest but not the bestest. In case of simple changes.
