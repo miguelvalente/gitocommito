@@ -24,14 +24,16 @@ export async function generateCommitMessage() {
   const allDifs = Object.values(stagedChanges).join("\n----\n");
 
   if (!allDifs || allDifs.length === 0) {
-    throw new Error(
-      "No staged changes were found. Please add your changes before annoying Gito."
-    );
+      vscode.window.showErrorMessage("No staged changes were found. Please add your changes before annoying Gito.");
+      throw new Error("No staged changes were found. Please add your changes before annoying Gito.");
   }
 
+
   // Ask user to select an option
-  const options = ["⚡ GotaGoFast: The fastest but not the bestest. \nIn case of simple changes.",
-                   "🐢 GotaGoBest: The bestest but not the fastest. \nIn case of complex changes."];
+  const options = [
+    "⚡ GotaGoFast: The fastest but not the bestest. \nIn case of simple changes.",
+    "🐢 GotaGoBest: The bestest but not the fastest. \nIn case of complex changes.",
+  ];
   const action = await vscode.window.showQuickPick(options, {
     placeHolder: "Select an action",
   });

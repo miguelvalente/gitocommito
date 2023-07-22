@@ -7,10 +7,10 @@ export function configureOpenAI(): OpenAIApi {
     .get("GitoCommito.OpenAIApiKey") as string;
 
   if (!apiKey || apiKey.trim() === "") {
-    // throw new Error('OpenAI API key is missing. Please provide a valid API key.');
     vscode.window.showErrorMessage(
-      "OpenAI API key is missing. Set the key with `GitoCommito: Set OpenAI API Key` command."
+      "OpenAI API keythrow new is missing. Set the key with `GitoCommito: Set OpenAI API Key` command."
     );
+    throw new Error('OpenAI API key is missing. Please provide a valid API key.');
   }
 
   const configuration = new Configuration({

@@ -29,9 +29,8 @@ async function isGitRepo(directory: string): Promise<boolean> {
     await runGitCommand(["git", "status"], directory);
     return true;
   } catch (error) {
-    throw new Error(
-      "No staged changes were found. Please add your changes before annoying Gito."
-    );
+    vscode.window.showErrorMessage("This directory is not a Git repository. Please select a valid Git repository before annoying Gito.");
+    throw new Error("This directory is not a Git repository. Please select a valid Git repository.");
   }
 }
 

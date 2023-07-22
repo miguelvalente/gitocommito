@@ -1,3 +1,4 @@
+import * as vscode from "vscode";
 import { get_encoding } from "@dqbd/tiktoken";
 import { ChatCompletionRequestMessageRoleEnum } from "openai";
 import {
@@ -78,6 +79,7 @@ export function constructCommitMessage(commitResponse: any): string {
 
     return commitMessage;
   } catch (error) {
+    vscode.window.showErrorMessage(`OpenAI request failed to provide a commit message. Sad Gitto.\n Message Response: ${error}.`);
     throw new Error(
       `OpenAI request failed to provide a commit message. Sad Gitto.\n Message Response: ${error}.`
     );
@@ -86,7 +88,7 @@ export function constructCommitMessage(commitResponse: any): string {
 
 export async function getMessagesResponse(openai: any, messages: any[]) {
   const generatedMessageResponse = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo-16k-0613",
+    model: "gpt-3.5-turbo-16k",
     temperature: 0.4,
     messages: messages,
   });
@@ -99,7 +101,7 @@ export function getAssistantMessages(
   userContent: string,
   previousMessages?: any[]
 ) {
-  let message = [
+  let messages = [
     {
       role: ChatCompletionRequestMessageRoleEnum.Assistant,
       content: assistantContent,
@@ -111,14 +113,21 @@ export function getAssistantMessages(
   ];
 
   if (previousMessages) {
-    return [...previousMessages, ...message];
+    messages = [...previousMessages, ...messages];
   }
 
-  return message;
+  const numTokens = numTokensFromMessaged(messages);
+  if (numTokens >= 16000){
+    let error = `The commit message is too long. It has ${numTokens} tokens. It should have less than 16000 tokens.`
+    vscode.window.showErrorMessage(error);
+    throw new Error(error);
+  }
+
+  return messages;
 }
 
 export function getSystemMessage(systemContent: string, userContent: string) {
-  return [
+  let messages = [
     {
       role: ChatCompletionRequestMessageRoleEnum.Assistant,
       content: systemContent,
@@ -128,16 +137,38 @@ export function getSystemMessage(systemContent: string, userContent: string) {
       content: userContent,
     },
   ];
+
+  const numTokens = numTokensFromMessaged(messages);
+  if (numTokens >= 16000){
+    let error = `The commit message is too long. It has ${numTokens} tokens. It should have less than 16000 tokens.`
+    vscode.window.showErrorMessage(error);
+    throw new Error(error);
+  }
+
+  return messages;
 }
 
-const enc = get_encoding("cl100k_base");
 
-function chechDiffLenght(text: string) {
-  if (enc.encode(text).length > 15700) {
-    throw new Error(
-      `The commit message is too long. It has ${
-        enc.encode(text).length
-      } tokens. It should have less than 15700 tokens.`
-    );
-  }
+function numTokensFromMessaged(messages: any[]){
+  const enc = get_encoding("cl100k_base");
+  let tokensPerMessage: number = 3;
+  let tokensPerName: number = 1;
+
+  let numTokens: number = 0;
+
+    for (let message of messages) {
+        numTokens += tokensPerMessage;
+        for (let [key, value] of Object.entries(message)) {
+            if (typeof value === 'string') {
+                numTokens += enc.encode(value).length;
+                if (key === "name") {
+                    numTokens += tokensPerName;
+                }
+            }
+        }
+    }
+  
+  numTokens += 3; // every reply is primed with assistant
+  
+  return numTokens;
 }

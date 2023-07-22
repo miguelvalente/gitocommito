@@ -25,6 +25,7 @@
 - An OpenAI API Key
 
 ## Know Issues and Future Improvements
+
 Check Mark Means Solved
 
 - [ ] Gito does not deal well with moving files
