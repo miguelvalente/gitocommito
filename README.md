@@ -39,7 +39,7 @@ Check Mark Means Solved
 
 - See CHANGELOG.md
 
-### Version 0.0.13
+### Version 0.0.14
 
 - Initial Release
 - Needs user testing. Feedback is highly appreciated. Please feel free to open an issue if you find any.
