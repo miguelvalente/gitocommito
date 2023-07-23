@@ -6,10 +6,12 @@ export const FIRST_STAGE =
   "You look for `diff --git` as a sign of the type of change and file. " +
   "You organize your explanations in markdown-formatted, bulleted lists.";
 
+
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export function FIRST_STAGE_USER_GOTAGOBEST(diff: string) {
+export function FIRST_STAGE_USER_GOTAGOFAST(diff: string) {
   return (
-    "Please explain the following diff output. " +
+    "Use the following diff output to write a single commit message that encapsulates the changes. " +
+    "The commit message should be in the conventional commit format. " +
     "Organize your explanation as a markdown-formatted, bulleted list." +
     "\ngit diff --staged" +
     `${diff}`
@@ -17,10 +19,9 @@ export function FIRST_STAGE_USER_GOTAGOBEST(diff: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-export function FIRST_STAGE_USER_GOTAGOFAST(diff: string) {
+export function FIRST_STAGE_USER_GOTAGOBEST(diff: string) {
   return (
-    "Use the following diff output to write a single commit message that encapsulates the changes. " +
-    "The commit message should be in the conventional commit format. " +
+    "Please explain the following diff output. " +
     "Organize your explanation as a markdown-formatted, bulleted list." +
     "\ngit diff --staged" +
     `${diff}`
@@ -62,6 +63,8 @@ export const GIT_EMOJI_DESCRIPTION_ENUM = [
   // "Implementing or improving security measures",
   "Use if involves upgrading packages or libraries to a newer version of a dependency. E.g: npm update or pip update",
   "Use if involves DOWNGRADING packages or libraries to a newer version of a dependency E.g: npm update or pip update",
+  "Use if ADDING a new package or library",
+  "Use if REMOVING a package or library",
   "Marking code for future removal or replacement",
   "Select this if changes are based on authentication, authorization, and user permissions",
   "Making a minor fix that isn’t urgent",
@@ -74,6 +77,7 @@ export const GIT_EMOJI_DESCRIPTION_ENUM = [
   "Enhancing the development environment or tools",
   "Code related to financial transactions or fundraising",
   "Code for parallel processing",
+  "Use if changes are related to releasing/updating a new version of the repository"
   // "modifying validation checks",
 ];
 
@@ -87,6 +91,8 @@ const EMOJI_MAP = [
   // ":lock:",
   ":arrow_up:",
   ":arrow_down:",
+  ":heavy_plus_sign:",
+  ":heavy_minus_sign:",
   ":wastebasket:",
   ":passport_control:",
   ":adhesive_bandage:",
@@ -99,6 +105,7 @@ const EMOJI_MAP = [
   ":technologist:",
   ":money_with_wings:",
   ":thread:",
+  ":bookmark:"
   // ":safety_vest:",
 ];
 
