@@ -18,6 +18,9 @@
 1.  Install the extension from the Visual Studio Code marketplace.
 2.  Set your OpenAI key by calling **`GitoCommito: Set OpenAI Key`** in the VS Code command palette (**`Cmd/Ctrl + Shift + P`** to open the command palette).
 3.  Start generating commit messages by calling **`GitoCommito: Generate Commit Message`** or by clicking on Gito's face in the Source Control view.
+4.  There's two options for generating commits.
+    - ⚡ GottaGoFast. Super fast but can only capture simple changes. Use if changed simple things across one file.
+    - 🐢 GottaGoBest: Uses more tokens and is slower but generates better commits capable of tracking multiple changes.
 
 ## Requirements
 

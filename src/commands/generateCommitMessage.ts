@@ -31,8 +31,8 @@ export async function generateCommitMessage() {
 
   // Ask user to select an option
   const options = [
-    "⚡ GotaGoFast: The fastest but not the bestest. \nIn case of simple changes.",
-    "🐢 GotaGoBest: The bestest but not the fastest. \nIn case of complex changes.",
+    "⚡ GottaGoFast: The fastest but not the bestest. \nIn case of simple changes.",
+    "🐢 GottaGoBest: The bestest but not the fastest. \nIn case of complex changes.",
   ];
   const action = await vscode.window.showQuickPick(options, {
     placeHolder: "Select an action",
@@ -46,10 +46,10 @@ export async function generateCommitMessage() {
   let commitMessage;
   // Generate commit message based on user's selection
   switch (action) {
-    case "⚡ GotaGoFast: The fastest but not the bestest. \nIn case of simple changes.":
+    case "⚡ GottaGoFast: The fastest but not the bestest. \nIn case of simple changes.":
       commitMessage = await startCommitGeneration(stagedChanges, openai);
       break;
-    case "🐢 GotaGoBest: The bestest but not the fastest. \nIn case of complex changes.":
+    case "🐢 GottaGoBest: The bestest but not the fastest. \nIn case of complex changes.":
       // Assuming startDetailedCommitGeneration exists and it generates a more comprehensive commit message
       commitMessage = await startDetailedCommitGeneration(
         stagedChanges,
